@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // firebase
-const serviceAccount = require("./drone-rush-firebase-adminsdk.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
