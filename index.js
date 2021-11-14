@@ -115,11 +115,18 @@ async function run() {
       res.json(result);
     });
 
-    // update a order
-    app.post("/orders", async (req, res) => {
+    // update orders
+    app.put("/orders/:id", async (req, res) => {
       const order = req.body;
-
-      const result = await ordersCollection.insertOne(order);
+      const id = req.params?.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = { $set: order };
+      const result = await ordersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.json(result);
     });
 
