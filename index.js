@@ -91,18 +91,18 @@ async function run() {
       res.json(result);
     });
 
-    // get all orders
-    app.get("/orders", async (req, res) => {
-      const cursor = ordersCollection.find({});
+    // get orders for current user
+    app.get("/orders/myOrders", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = ordersCollection.find(query);
       const orders = await cursor.toArray();
       res.send(orders);
     });
 
-    // get orders for current user
+    // get all orders
     app.get("/orders", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      const cursor = ordersCollection.find(query);
+      const cursor = ordersCollection.find({});
       const orders = await cursor.toArray();
       res.send(orders);
     });
@@ -130,6 +130,16 @@ async function run() {
       res.json(result);
     });
 
+    // delete order
+    app.delete("/orders", async (req, res) => {
+      const id = req.query.id;
+      console.log(id);
+      const email = req.query.email;
+      const query = { _id: ObjectId(id), email: email };
+      const result = await ordersCollection.deleteOne(query);
+      res.json(result);
+    });
+
     // post reviews
     app.post("/reviews", async (req, res) => {
       const review = req.body;
@@ -142,16 +152,6 @@ async function run() {
       const cursor = reviewsCollection.find({});
       const reviews = await cursor.toArray();
       res.send(reviews);
-    });
-
-    // delete order
-    app.delete("/orders", async (req, res) => {
-      const id = req.query.id;
-      console.log(id);
-      const email = req.query.email;
-      const query = { _id: ObjectId(id), email: email };
-      const result = await ordersCollection.deleteOne(query);
-      res.json(result);
     });
 
     // get users
@@ -181,6 +181,7 @@ async function run() {
       res.json(result);
     });
 
+    // check if the used is admin
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -192,6 +193,7 @@ async function run() {
       res.json({ admin: isAdmin });
     });
 
+    // update user as admin
     app.put("/users/admin", verifyToken, async (req, res) => {
       const user = req.body;
       const requester = req.decodedEmail;
