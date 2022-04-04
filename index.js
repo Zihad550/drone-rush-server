@@ -116,17 +116,9 @@ async function run() {
     });
 
     // update orders
-    app.put("/orders/:id", async (req, res) => {
-      const order = req.body;
-      const id = req.params?.id;
-      const filter = { _id: ObjectId(id) };
-      const options = { upsert: true };
-      const updateDoc = { $set: order };
-      const result = await ordersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
+    app.put("/orders", async (req, res) => {
+      const {_id, orderStatus} = req.body;
+      const result = await ordersCollection.updateOne({_id} , {$set: {orderStatus}})
       res.json(result);
     });
 
