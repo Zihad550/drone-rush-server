@@ -79,7 +79,7 @@ async function run() {
     // delete drone
     app.delete("/drones", async (req, res) => {
       const id = req.query.id;
-      const query = { _id: ObjectId(id) };
+      const query = {$and: [{_id: ObjectId(id)}, {deletable: true}] };
       const result = await dronesCollection.deleteOne(query);
       res.json(result);
     });
@@ -118,7 +118,8 @@ async function run() {
     // update orders
     app.put("/orders", async (req, res) => {
       const {_id, orderStatus} = req.body;
-      const result = await ordersCollection.updateOne({_id} , {$set: {orderStatus}})
+      console.log(_id, orderStatus)
+      const result = await ordersCollection.updateOne({_id: ObjectId(_id)} , {$set: {orderStatus}})
       res.json(result);
     });
 
