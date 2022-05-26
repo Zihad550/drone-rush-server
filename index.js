@@ -100,6 +100,12 @@ async function run() {
       res.send(orders);
     });
 
+    // get purchased drones
+    app.get('/orders/purchased', async(req, res) => {
+      const purchased = await ordersCollection.find({$and: [{email: req.query.email}, {status: 'Shipped'}]}).toArray();
+      res.json(purchased);
+    })
+
     // get all orders
     app.get("/orders", async (req, res) => {
       const cursor = ordersCollection.find({});
