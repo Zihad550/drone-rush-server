@@ -1,22 +1,19 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
-const admin = require("firebase-admin");
-const port = process.env.PORT || 5000;
-require("dotenv").config();
+const dotenv = require('dotenv');
 const { MongoClient } = require("mongodb");
 const ObjectId = require("mongodb").ObjectId;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const verifyToken = require('./middlewares/verifyToken')
 
 // middle ware
+const app = express();
+dotenv.config()
 app.use(cors());
 app.use(express.json());
+const port = process.env.PORT || 8000;
 
-// firebase
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
 
 // mongo db use and password and client
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bhmov.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -25,17 +22,7 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 
-async function verifyToken(req, res, next) {
-  if (req.headers?.authorization?.startsWith("Bearer ")) {
-    const token = req.headers.authorization.split(" ")[1];
-    try {
-      const decodedUser = await admin.auth().verifyIdToken(token);
-      req.decodedEmail = decodedUser.email;
-    } catch {}
-  }
 
-  next();
-}
 
 async function run() {
   try {
@@ -46,142 +33,156 @@ async function run() {
     const usersCollection = database.collection("users");
     const ordersCollection = database.collection("orders");
     const reviewsCollection = database.collection("reviews");
+    const productsCollection = database.collection("products");
 
     // get home drones
-    app.get("/drones/homeDrones", async (req, res) => {
-      const cursor = homeDronesCollection.find({});
-      const drones = await cursor.toArray();
+    app.get("/products", async (req, res) => {
+      const drones = await productsCollection.find({}).toArray()
       res.send(drones);
     });
 
-    // get all drones
-    app.get("/drones", async (req, res) => {
-      const cursor = dronesCollection.find({});
-      const drones = await cursor.toArray();
-      res.send(drones);
-    });
-
-    // get a drones
-    app.get("/drones/:name", async (req, res) => {
-      const name = req.params.name;
-      const query = { name: name };
-      const result = await dronesCollection.findOne(query);
+    // get a product
+    app.get("/products/:id", async (req, res) => {
+      const result = await productsCollection.findOne({_id: req.params.id});
+      console.log(result)
       res.json(result);
     });
 
     // post drone
-    app.post("/drones", async (req, res) => {
-      const drone = req.body;
-      const result = await dronesCollection.insertOne(drone);
+    app.post("/product",verifyToken, async (req, res) => {
+      const result = await productsCollection.insertOne(req.body);
       res.json(result);
     });
 
     // delete drone
-    app.delete("/drones", async (req, res) => {
-      const id = req.query.id;
-      const query = {$and: [{_id: ObjectId(id)}, {deletable: true}] };
-      const result = await dronesCollection.deleteOne(query);
+    app.delete("/drone/:id",verifyToken, async (req, res) => {
+      const result = await productsCollection.deleteOne({$and: [{_id: ObjectId(req.params.id)}, {deletable: true}] });
       res.json(result);
     });
 
     // post order
-    app.post("/orders", async (req, res) => {
-      const order = req.body;
-      const result = await ordersCollection.insertOne(order);
+    app.post("/order",verifyToken, async (req, res) => {
+      const result = await ordersCollection.insertOne(req.body);
       res.json(result);
     });
 
     // get orders for current user
-    app.get("/orders/myOrders", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      const cursor = ordersCollection.find(query);
-      const orders = await cursor.toArray();
+    app.get("/orders/:email",verifyToken, async (req, res) => {
+      const orders = await ordersCollection.find({email: req.params.email}).toArray();
       res.send(orders);
     });
 
-    // get purchased drones
-    app.get('/orders/purchased', async(req, res) => {
-      const purchased = await ordersCollection.find({$and: [{email: req.query.email}, {status: 'Shipped'}]}).toArray();
-      res.json(purchased);
+    // get purchased products
+    app.get('/purchases/:email',verifyToken, async(req, res) => {
+      const purchases = await ordersCollection.find({$and: [{email: req.query.email}, {status: 'Shipped'}]}).toArray();
+      res.json(purchases);
     })
 
     // get all orders
-    app.get("/orders", async (req, res) => {
+    app.get("/orders",verifyToken, async (req, res) => {
       const cursor = ordersCollection.find({});
       const orders = await cursor.toArray();
       res.send(orders);
     });
 
     // get a order
-    app.get("/orders/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await ordersCollection.findOne(query);
+    app.get("/orders/:id",verifyToken, async (req, res) => {
+      const result = await ordersCollection.findOne({_id: ObjectId(req.params.id)});
       res.json(result);
     });
 
     // update orders
-    app.put("/orders", async (req, res) => {
+    app.patch("/orders",verifyToken, async (req, res) => {
       const {_id, orderStatus} = req.body;
-      console.log(_id, orderStatus)
       const result = await ordersCollection.updateOne({_id: ObjectId(_id)} , {$set: {orderStatus}})
       res.json(result);
     });
 
     // delete order
-    app.delete("/orders", async (req, res) => {
-      const id = req.query.id;
-      console.log(id);
-      const email = req.query.email;
-      const query = { _id: ObjectId(id), email: email };
-      const result = await ordersCollection.deleteOne(query);
+    app.delete("/order/:id",verifyToken, async (req, res) => {
+      const result = await ordersCollection.deleteOne({ _id: ObjectId(req.params.id) });
       res.json(result);
     });
 
-    // post reviews
-    app.post("/reviews", async (req, res) => {
-      const review = req.body;
-      const result = await reviewsCollection.insertOne(review);
-      res.json(result);
-    });
 
-    // get reviews
-    app.get("/reviews", async (req, res) => {
-      const cursor = reviewsCollection.find({});
-      const reviews = await cursor.toArray();
-      res.send(reviews);
-    });
+    // auth
+    // register
+    app.post('/register', async(req, res) => {
+      const {password, email, name} = req.body;
+
+      try{
+        const exists = await usersCollection.findOne({email});
+      if(exists){
+        res.json({"error": "Authentication failed"})
+        return;
+      }      
+    
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = {name, email, password: hashedPassword};
+      const result = await usersCollection.insertOne({...user, role: 'user'});
+
+        // generate token
+        const token = jwt.sign({userName: user.name, userId: result.insertedId}, process.env.JWT_SECRET, {
+          expiresIn: '1h'
+        });
+
+        res.status(200).json({
+          name: user.name,
+          email: user.email,
+          accessToken:token,
+          _id: result.insertedId,
+          role: 'user'
+        })
+     
+      }
+      catch{
+        res.json({"error": "Authentication failed"})
+      }
+      
+    })
+
+    // login
+    app.post('/login', async(req, res) => {
+      try{
+      const {email, password} = req.body;
+      const user = await usersCollection.findOne({email});
+      console.log(user)
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if(isValidPassword){
+        // generate token
+        const token = jwt.sign({userName: user.name, userId: user._id}, process.env.JWT_SECRET, {
+          expiresIn: '1h'
+        });
+
+        res.status(200).json({
+          name: user.name,
+          email: user.email,
+          accessToken:token
+        })
+
+      }
+      else{
+        res.status(401).json({
+          "error": "Authentication failed",
+        })
+      }
+      }
+      catch{
+        res.status(401).json({
+          error: "Authentication failed"
+        })
+      }
+    
+    })
 
     // get users
-    app.get("/users", async (req, res) => {
-      const cursor = usersCollection.find({});
-      const users = await cursor.toArray();
+    app.get("/users", verifyToken, async (req, res) => {
+      const users = await usersCollection.find({}).toArray();
       res.send(users);
     });
-    // post users
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      res.json(result);
-    });
-
-    // update users
-    app.put("/users", async (req, res) => {
-      const user = req.body;
-      const filter = { email: user.email };
-      const options = { upsert: true };
-      const updateDoc = { $set: user };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.json(result);
-    });
-
+    
     // check if the used is admin
-    app.get("/users/:email", async (req, res) => {
+    app.get("/users/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await usersCollection.findOne(query);
@@ -212,11 +213,32 @@ async function run() {
           .json({ message: "you do not have access to make admin" });
       }
     });
+
+    // add review
+    app.patch('/review/:id',verifyToken, async(req, res) => {
+      const result = await productsCollection.updateOne({_id: ObjectId(req.params.id)}, {$push: {reviews: {...req.body}}});
+      res.json(result);
+    })
+
+  
+   
+
   } finally {
   }
 }
 
 run().catch(console.dir);
+
+
+// default error handler 
+const errorHandler = (err, req, res, next) => {
+  if(res.headersSent){
+    return next(err);
+  }
+  res.status(500).json({error: err})
+}
+
+app.use(errorHandler)
 
 app.get("/", (req, res) => {
   res.send("Welcome to drone rush server");
