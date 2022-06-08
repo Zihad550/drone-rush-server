@@ -37,8 +37,20 @@ async function run() {
 
     // get home drones
     app.get("/products", async (req, res) => {
-      const drones = await productsCollection.find({}).toArray()
-      res.send(drones);
+      const productsPerPage = Number(req.query.productsPerPage);
+      let currentPage = Number(req.query.currentPage) - 1;
+      const query = dronesCollection.find({});
+      const totalProducts = await query.count();
+      let result;
+      
+      if(currentPage){
+        result = query.skip(currentPage * productsPerPage).limit(productsPerPage);  
+      }
+      else{
+        result = query.limit(productsPerPage);
+      }
+      result = await result.toArray();
+      res.send({products: result, totalProducts});
     });
 
     // get a product
@@ -55,20 +67,19 @@ async function run() {
     });
 
     // delete drone
-    app.delete("/drone/:id",verifyToken, async (req, res) => {
+    app.delete("/product/:id",verifyToken, async (req, res) => {
       const result = await productsCollection.deleteOne({$and: [{_id: ObjectId(req.params.id)}, {deletable: true}] });
+      console.log(result)
       res.json(result);
     });
 
-    // post order
-    app.post("/order",verifyToken, async (req, res) => {
-      const result = await ordersCollection.insertOne(req.body);
-      res.json(result);
-    });
+    
 
     // get orders for current user
     app.get("/orders/:email",verifyToken, async (req, res) => {
+      console.log(req)
       const orders = await ordersCollection.find({email: req.params.email}).toArray();
+      console.log(orders)
       res.send(orders);
     });
 
@@ -80,9 +91,17 @@ async function run() {
 
     // get all orders
     app.get("/orders",verifyToken, async (req, res) => {
-      const cursor = ordersCollection.find({});
-      const orders = await cursor.toArray();
-      res.send(orders);
+      const status = req.query.status;
+      console.log(status)
+      let orders;
+     if(status !== 'All') {
+       console.log('first')
+      orders = await ordersCollection.find({orderStatus: req.query.status}).toArray();
+      res.json(orders);
+      return;
+     }
+     orders = await ordersCollection.find({}).toArray();
+     res.json(orders);
     });
 
     // get a order
@@ -91,9 +110,17 @@ async function run() {
       res.json(result);
     });
 
+    // post order
+    app.post("/order",verifyToken, async (req, res) => {
+      const result = await ordersCollection.insertOne(req.body);
+      res.json(result);
+    });
+
     // update orders
     app.patch("/orders",verifyToken, async (req, res) => {
       const {_id, orderStatus} = req.body;
+      console.log(_id, req);
+      console.log('here')
       const result = await ordersCollection.updateOne({_id: ObjectId(_id)} , {$set: {orderStatus}})
       res.json(result);
     });
@@ -104,28 +131,24 @@ async function run() {
       res.json(result);
     });
 
-
     // auth
     // register
     app.post('/register', async(req, res) => {
       const {password, email, name} = req.body;
-
+      console.log(req.body)
       try{
         const exists = await usersCollection.findOne({email});
       if(exists){
         res.json({"error": "Authentication failed"})
         return;
       }      
-    
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = {name, email, password: hashedPassword};
       const result = await usersCollection.insertOne({...user, role: 'user'});
-
         // generate token
-        const token = jwt.sign({userName: user.name, userId: result.insertedId}, process.env.JWT_SECRET, {
-          expiresIn: '1h'
+        const token =  jwt.sign({userName: user.name, userId: result.insertedId}, process.env.JWT_SECRET, {
+          // expiresIn: '1h'
         });
-
         res.status(200).json({
           name: user.name,
           email: user.email,
@@ -133,12 +156,10 @@ async function run() {
           _id: result.insertedId,
           role: 'user'
         })
-     
       }
       catch{
         res.json({"error": "Authentication failed"})
       }
-      
     })
 
     // login
@@ -146,20 +167,20 @@ async function run() {
       try{
       const {email, password} = req.body;
       const user = await usersCollection.findOne({email});
-      console.log(user)
-      const isValidPassword = await bcrypt.compare(password, user.password);
+      const isValidPassword = bcrypt.compare(password, user.password);
       if(isValidPassword){
         // generate token
         const token = jwt.sign({userName: user.name, userId: user._id}, process.env.JWT_SECRET, {
-          expiresIn: '1h'
+          // expiresIn: '1h'
         });
-
+        console.log('inside', token)
         res.status(200).json({
           name: user.name,
           email: user.email,
-          accessToken:token
+          accessToken:token,
+          role: user.role,
+          _id: user._id
         })
-
       }
       else{
         res.status(401).json({
@@ -219,9 +240,6 @@ async function run() {
       const result = await productsCollection.updateOne({_id: ObjectId(req.params.id)}, {$push: {reviews: {...req.body}}});
       res.json(result);
     })
-
-  
-   
 
   } finally {
   }
