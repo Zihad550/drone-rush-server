@@ -2347,6 +2347,7 @@ __metadata:
     cors: ^2.8.5
     dotenv: ^10.0.0
     express: ^4.17.1
+    express-rate-limit: ^6.5.2
     firebase-admin: ^10.0.0
     heroku: ^7.59.1
     jsonwebtoken: ^8.5.1
@@ -2557,6 +2558,15 @@ __metadata:
     signal-exit: ^3.0.0
     strip-eof: ^1.0.0
   checksum: da132af2b209e69d79f91751ac6d15ddbb8d9414f9e5f7a53405232679a3dca00fe11eb14e0cd5c2c374a749061410a7717fcc3094f6dd779cf4d259faa58d9a
+  languageName: node
+  linkType: hard
+
+"express-rate-limit@npm:^6.5.2":
+  version: 6.5.2
+  resolution: "express-rate-limit@npm:6.5.2"
+  peerDependencies:
+    express: ^4 || ^5
+  checksum: 20ce3cc0d58b9fcab5a427c100315c8e4467e0a43877fe4341bfefae8df627949efe1c98c16ee9b7d6ed4f19f0d06df8485f52bb81b490ffb534d1cbc3cd21f7
   languageName: node
   linkType: hard
 
