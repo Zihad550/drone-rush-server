@@ -1,15 +1,26 @@
-function dbConnect(){
-
-
-
-// mongo db use and password and client
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bhmov.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, {
+const {MongoClient} = require('mongodb');
+const connectionString = process.env.ATLAS_URI;
+const client = new MongoClient(connectionString, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+})
 
-console.log('db connected')
+let dbConnection;
+
+module.exports = {
+  connectToServer: function (callback){
+    client.connect((err, db) => {
+      if(err || !db){
+        return callback(err)
+      }
+      dbConnection = db.db('drone_rush');
+      console.log('Successfully connected to MongoDB.');
+
+      return callback();
+    })
+  },
+
+  getDb:() => {
+    return dbConnection;
+  }
 }
-
-module.exports = dbConnect;

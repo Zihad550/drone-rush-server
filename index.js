@@ -6,7 +6,7 @@ const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const verifyToken = require('./middleware/verifyToken');
-const dbConnect = require("./utils/dbConnect");
+const {connectToServer} = require("./utils/dbConnect");
 const productsRouter = require("./routes/v1/products.route");
 const ordersRouter = require('./routes/v1/orders.route');
 const purchaseRouter = require('./routes/v1/purchase.route');
@@ -23,7 +23,16 @@ app.use(express.json());
 const port = process.env.PORT || 8000;
 
 // connect db
-dbConnect()
+connectToServer((err) => {
+  if(!err) {
+app.listen(port, () => {
+  console.log(` listening at port:${port}`);
+});
+  }else{
+  console.log(err)
+  }
+  
+})
 
 // routes
 // api = server routes
@@ -81,10 +90,6 @@ app.all('*', (req, res) => {
 
 app.use(errorHandler);
 
-
-app.listen(port, () => {
-  console.log(` listening at port:${port}`);
-});
 
 
 /* if any error occures from express */

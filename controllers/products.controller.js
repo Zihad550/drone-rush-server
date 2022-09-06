@@ -1,9 +1,13 @@
-module.exports.getAllProducts = async (req, res) => {
-    const productsPerPage = Number(req.query.productsPerPage);
-      let currentPage = Number(req.query.currentPage) - 1;
-      try{
+const { getDb } = require("../utils/dbConnect");
 
-      const query = dronesCollection.find({});
+module.exports.getAllProducts = async (req, res, next) => {
+ 
+      try{
+        const db = getDb();
+
+        const productsPerPage = Number(req.query.productsPerPage);
+            let currentPage = Number(req.query.currentPage) - 1;
+      const query = await db.collection('products').find({});
       const totalProducts = await query.count();
       let result;
       
@@ -23,10 +27,7 @@ module.exports.getAllProducts = async (req, res) => {
       });
       }
       catch(error){
-        res.status(400).send({
-          success: false,
-          error: 'Internal server error',
-        })
+        next(error)
       }
 }
 
