@@ -242,12 +242,6 @@ async function run() {
     })
 
   } finally {
-  }
-}
-
-run().catch(console.dir);
-
-
 // default error handler 
 const errorHandler = (err, req, res, next) => {
   if(res.headersSent){
@@ -265,3 +259,10 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(` listening at port:${port}`);
 });
+
+  }
+}
+
+run().catch(console.dir);
+
+
