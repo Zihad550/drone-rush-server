@@ -33,25 +33,29 @@ async function run() {
     app.get("/products", async (req, res) => {
       const productsPerPage = Number(req.query.productsPerPage);
       let currentPage = Number(req.query.currentPage) - 1;
-      const query = dronesCollection.find({});
-      const totalProducts = await query.count();
-      let result;
+      let promise;
 
       if (currentPage) {
-        result = query
+        promise = dronesCollection
+          .find({})
           .skip(currentPage * productsPerPage)
-          .limit(productsPerPage);
+          .limit(productsPerPage)
+          .toArray();
       } else {
-        result = query.limit(productsPerPage);
+        promise = dronesCollection.find({}).limit(productsPerPage).toArray();
       }
-      result = await result.toArray();
+
+      const [totalProducts, result] = await Promise.all([
+        dronesCollection.countDocuments({}),
+        promise,
+      ]);
+
       res.send({ products: result, totalProducts });
     });
 
     // get a product
     app.get("/products/:id", async (req, res) => {
       const result = await productsCollection.findOne({ _id: req.params.id });
-      console.log(result);
       res.json(result);
     });
 
@@ -66,17 +70,14 @@ async function run() {
       const result = await productsCollection.deleteOne({
         $and: [{ _id: ObjectId(req.params.id) }, { deletable: true }],
       });
-      console.log(result);
       res.json(result);
     });
 
     // get orders for current user
     app.get("/orders/:email", verifyToken, async (req, res) => {
-      console.log(req);
       const orders = await ordersCollection
         .find({ email: req.params.email })
         .toArray();
-      console.log(orders);
       res.send(orders);
     });
 
@@ -91,10 +92,8 @@ async function run() {
     // get all orders
     app.get("/orders", verifyToken, async (req, res) => {
       const status = req.query.status;
-      console.log(status);
       let orders;
       if (status !== "All") {
-        console.log("first");
         orders = await ordersCollection
           .find({ orderStatus: req.query.status })
           .toArray();
@@ -122,8 +121,6 @@ async function run() {
     // update orders
     app.patch("/orders", verifyToken, async (req, res) => {
       const { _id, orderStatus } = req.body;
-      console.log(_id, req);
-      console.log("here");
       const result = await ordersCollection.updateOne(
         { _id: ObjectId(_id) },
         { $set: { orderStatus } },
@@ -143,7 +140,6 @@ async function run() {
     // register
     app.post("/register", async (req, res) => {
       const { password, email, name } = req.body;
-      console.log(req.body);
       try {
         const exists = await usersCollection.findOne({ email });
         if (exists) {
@@ -191,7 +187,6 @@ async function run() {
               // expiresIn: '1h'
             },
           );
-          console.log("inside", token);
           res.status(200).json({
             name: user.name,
             email: user.email,
