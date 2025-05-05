@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node dist/app.js",
+    "dev": "tsnd --respawn src/app.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -13,14 +14,20 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "firebase-admin": "^12.6.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.9.0"
+    "mongodb": "^6.16.0"
   },
   "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4",
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "nodemon": "^3.1.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
   }
 }

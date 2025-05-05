@@ -1,3 +1,5 @@
 node_modules
 .env
 drone-rush-firebase-adminsdk.json
+.vercel
+dist

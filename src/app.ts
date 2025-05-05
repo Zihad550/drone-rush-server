@@ -1,22 +1,26 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const { MongoClient } = require("mongodb");
-const ObjectId = require("mongodb").ObjectId;
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const verifyToken = require("./middlewares/verifyToken");
+import express, {
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
+import cors from "cors";
+import { MongoClient } from "mongodb";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import catchAsync from "./app/utils/catchAsync";
+import verifyToken from "./app/middlewares/verifyToken";
+import config from "./app/config";
+import useObjectId from "./app/utils/useObjectId";
 
 // middle ware
 const app = express();
-dotenv.config();
 app.use(cors());
 app.use(express.json());
-const port = process.env.PORT || 8000;
+const port = config.port;
 
 // mongo db use and password and client
-const uri = process.env.URI;
-const client = new MongoClient(uri);
+const client = new MongoClient(config.database_uri);
 
 async function run() {
   try {
@@ -30,84 +34,112 @@ async function run() {
     const productsCollection = database.collection("products");
 
     // get home drones
-    app.get("/products", async (req, res) => {
-      const productsPerPage = Number(req.query.productsPerPage);
-      let currentPage = Number(req.query.currentPage) - 1;
-      let promise;
+    app.get(
+      "/products",
+      catchAsync(async (req, res) => {
+        const productsPerPage = Number(req.query.productsPerPage);
+        let currentPage = Number(req.query.currentPage) - 1;
+        let promise;
 
-      if (currentPage) {
-        promise = dronesCollection
-          .find({})
-          .skip(currentPage * productsPerPage)
-          .limit(productsPerPage)
-          .toArray();
-      } else {
-        promise = dronesCollection.find({}).limit(productsPerPage).toArray();
-      }
+        if (currentPage) {
+          promise = dronesCollection
+            .find({})
+            .skip(currentPage * productsPerPage)
+            .limit(productsPerPage)
+            .toArray();
+        } else {
+          promise = dronesCollection.find({}).limit(productsPerPage).toArray();
+        }
 
-      const [totalProducts, result] = await Promise.all([
-        dronesCollection.countDocuments({}),
-        promise,
-      ]);
+        const [totalProducts, result] = await Promise.all([
+          dronesCollection.countDocuments({}),
+          promise,
+        ]);
 
-      res.send({ products: result, totalProducts });
-    });
+        res.send({ products: result, totalProducts });
+      }),
+    );
 
     // get a product
-    app.get("/products/:id", async (req, res) => {
-      const result = await productsCollection.findOne({ _id: req.params.id });
-      res.json(result);
-    });
+    app.get(
+      "/products/:id",
+      catchAsync(async (req, res) => {
+        const result = await productsCollection.findOne({
+          _id: useObjectId(req.params.id),
+        });
+        res.json(result);
+      }),
+    );
 
     // post drone
-    app.post("/product", verifyToken, async (req, res) => {
-      const result = await productsCollection.insertOne(req.body);
-      res.json(result);
-    });
+    app.post(
+      "/product",
+      verifyToken,
+      catchAsync(async (req, res) => {
+        const result = await productsCollection.insertOne(req.body);
+        res.json(result);
+      }),
+    );
 
     // delete drone
-    app.delete("/product/:id", verifyToken, async (req, res) => {
-      const result = await productsCollection.deleteOne({
-        $and: [{ _id: ObjectId(req.params.id) }, { deletable: true }],
-      });
-      res.json(result);
-    });
+    app.delete(
+      "/product/:id",
+      verifyToken,
+      catchAsync(async (req, res) => {
+        const result = await productsCollection.deleteOne({
+          $and: [{ _id: useObjectId(req.params.id) }, { deletable: true }],
+        });
+        res.json(result);
+      }),
+    );
 
     // get orders for current user
-    app.get("/orders/:email", verifyToken, async (req, res) => {
-      const orders = await ordersCollection
-        .find({ email: req.params.email })
-        .toArray();
-      res.send(orders);
-    });
+    app.get(
+      "/orders/:email",
+      verifyToken,
+      catchAsync(async (req, res) => {
+        const orders = await ordersCollection
+          .find({ email: req.params.email })
+          .toArray();
+        res.send(orders);
+      }),
+    );
 
     // get purchased products
-    app.get("/purchases/:email", verifyToken, async (req, res) => {
-      const purchases = await ordersCollection
-        .find({ $and: [{ email: req.query.email }, { status: "Shipped" }] })
-        .toArray();
-      res.json(purchases);
-    });
+    app.get(
+      "/purchases/:email",
+      verifyToken,
+      catchAsync(async (req, res) => {
+        const purchases = await ordersCollection
+          .find({ $and: [{ email: req.query.email }, { status: "Shipped" }] })
+          .toArray();
+        res.json(purchases);
+      }),
+    );
 
     // get all orders
-    app.get("/orders", verifyToken, async (req, res) => {
-      const status = req.query.status;
-      let orders;
-      if (status !== "All") {
-        orders = await ordersCollection
-          .find({ orderStatus: req.query.status })
-          .toArray();
+    app.get(
+      "/orders",
+      verifyToken,
+      catchAsync(async (req, res) => {
+        const status = req.query.status;
+        let orders;
+        if (status !== "All") {
+          orders = await ordersCollection
+            .find({ orderStatus: req.query.status })
+            .toArray();
+          res.json(orders);
+          return;
+        }
+        orders = await ordersCollection.find({}).toArray();
         res.json(orders);
-        return;
-      }
-      orders = await ordersCollection.find({}).toArray();
-      res.json(orders);
-    });
+      }),
+    );
 
     // get a order
     app.get("/orders/:id", verifyToken, async (req, res) => {
       const result = await ordersCollection.findOne({
-        _id: ObjectId(req.params.id),
+        _id: useObjectId(req.params.id),
       });
       res.json(result);
     });
@@ -122,7 +154,7 @@ async function run() {
     app.patch("/orders", verifyToken, async (req, res) => {
       const { _id, orderStatus } = req.body;
       const result = await ordersCollection.updateOne(
-        { _id: ObjectId(_id) },
+        { _id: useObjectId(_id) },
         { $set: { orderStatus } },
       );
       res.json(result);
@@ -131,7 +163,7 @@ async function run() {
     // delete order
     app.delete("/order/:id", verifyToken, async (req, res) => {
       const result = await ordersCollection.deleteOne({
-        _id: ObjectId(req.params.id),
+        _id: useObjectId(req.params.id),
       });
       res.json(result);
     });
@@ -155,7 +187,7 @@ async function run() {
         // generate token
         const token = jwt.sign(
           { userName: user.name, userId: result.insertedId },
-          process.env.JWT_SECRET,
+          config.jwt_secret,
           {
             // expiresIn: '1h'
           },
@@ -177,12 +209,13 @@ async function run() {
       try {
         const { email, password } = req.body;
         const user = await usersCollection.findOne({ email });
-        const isValidPassword = bcrypt.compare(password, user.password);
+        if (!user) throw new Error("User not found!");
+        const isValidPassword = await bcrypt.compare(password, user.password);
         if (isValidPassword) {
           // generate token
           const token = jwt.sign(
             { userName: user.name, userId: user._id },
-            process.env.JWT_SECRET,
+            config.jwt_secret,
             {
               // expiresIn: '1h'
             },
@@ -226,13 +259,13 @@ async function run() {
 
     // update user as admin
     app.put("/users/admin", verifyToken, async (req, res) => {
-      const user = req.body;
-      const requester = req.decodedEmail;
-      if (requester) {
+      if ("decodedEmail" in req) {
+        const requester = req.decodedEmail;
         const requesterAccount = await usersCollection.findOne({
           email: requester,
         });
         if (requesterAccount?.role === "admin") {
+          const user = req.body;
           const filter = { email: user.email };
           const updateDoc = { $set: { role: "admin" } };
           const result = await usersCollection.updateOne(filter, updateDoc);
@@ -248,14 +281,14 @@ async function run() {
     // add review
     app.patch("/review/:id", verifyToken, async (req, res) => {
       const result = await productsCollection.updateOne(
-        { _id: ObjectId(req.params.id) },
+        { _id: useObjectId(req.params.id) },
         { $push: { reviews: { ...req.body } } },
       );
       res.json(result);
     });
   } finally {
     // default error handler
-    const errorHandler = (err, req, res, next) => {
+    const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       if (res.headersSent) {
         return next(err);
       }
