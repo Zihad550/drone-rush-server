@@ -1,7 +1,7 @@
-import { ObjectId } from "mongodb";
+import { Types } from "mongoose";
 
 const useObjectId = (payload: string) => {
-  return new ObjectId(payload);
+  return new Types.ObjectId(payload);
 };
 
 export default useObjectId;

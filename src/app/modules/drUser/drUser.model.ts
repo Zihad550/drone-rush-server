@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import IUser, { IUserName } from "./dronerushUser.interface";
+import IUser, { IUserName } from "./drUser.interface";
 
 const userNameSchema = new Schema<IUserName>({
   firstName: {

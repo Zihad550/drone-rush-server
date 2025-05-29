@@ -3,11 +3,11 @@ import IProduct from "./drProduct.interface";
 
 const productSchema = new Schema<IProduct>(
   {
-    img: {
+    name: {
       type: String,
       required: true,
     },
-    name: {
+    img: {
       type: String,
       required: true,
     },
@@ -50,3 +50,5 @@ const Product = model<IProduct>(
   productSchema,
   "dronerush_products",
 );
+
+export default Product;

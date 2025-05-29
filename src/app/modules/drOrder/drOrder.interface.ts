@@ -8,4 +8,13 @@ export default interface IOrder {
   user: Types.ObjectId | IUser;
   shippingInformation: Types.ObjectId | IShippingInfo;
   product: Types.ObjectId | IProduct;
+  status: TOrderStatus;
 }
+
+export type TOrderStatus =
+  | "processing"
+  | "packaged"
+  | "delivered"
+  | "buyer-cancelled"
+  | "seller-cancelled"
+  | "completed";
