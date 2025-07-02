@@ -1,22 +1,16 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { NextFunction, Request, Response } from "express";
+
 import config from "../config";
+import catchAsync from "../utils/catchAsync";
 
-async function verifyToken(req: Request, res: Response, next: NextFunction) {
-  try {
-    const token = req.headers?.authorization?.split(" ")[1];
-    if (!token) throw new Error("Token not found");
+const verifyToken = catchAsync(async (req, res, next) => {
+  const token = req.headers?.authorization;
+  if (!token) throw new Error("Token not found");
 
-    const decoded = jwt.verify(token, config.jwt_secret);
-    console.log(decoded);
-    const { userName, userId } = decoded as JwtPayload;
-    req.userName = userName;
-    req.userId = userId;
-    req.user = userName;
-    next();
-  } catch {
-    next("Authentication failed");
-  }
-}
+  const decoded = jwt.verify(token, config.jwt_access_secret);
+  const user = decoded as JwtPayload;
+  (req as any).user = user;
+  next();
+});
 
 export default verifyToken;

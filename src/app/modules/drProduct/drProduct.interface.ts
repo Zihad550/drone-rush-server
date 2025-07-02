@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import IReview from "../drReview/dronerushReview.interface";
+import IReview from "../drReview/drReview.interface";
 import ICategory from "../drCategory/drCategory.interface";
 import IBrand from "../drBrand/drBrand.interface";
 export default interface IProduct {

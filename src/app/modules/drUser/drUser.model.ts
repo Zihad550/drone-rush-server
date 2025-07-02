@@ -1,25 +1,28 @@
 import { model, Schema } from "mongoose";
-import IUser, { IUserName } from "./drUser.interface";
+import IUser, { IUserModelType } from "./drUser.interface";
+import argon2 from "argon2";
+import { USER_ROLE, UserStatuses } from "./drUser.constant";
 
-const userNameSchema = new Schema<IUserName>({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  middleName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-});
+// const userNameSchema = new Schema<IUserName>({
+//   firstName: {
+//     type: String,
+//     required: true,
+//   },
+//   middleName: {
+//     type: String,
+//   },
+//   lastName: {
+//     type: String,
+//     required: true,
+//   },
+// });
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser, IUserModelType>(
   {
     name: {
-      type: userNameSchema,
+      type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
@@ -29,9 +32,18 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
     },
-    accessToken: {
+    passwordChangedAt: {
+      type: Date,
+    },
+    role: {
       type: String,
-      required: true,
+      enum: USER_ROLE,
+      default: "user",
+    },
+    status: {
+      type: String,
+      enum: UserStatuses,
+      default: "active",
     },
   },
   {
@@ -39,5 +51,26 @@ const userSchema = new Schema<IUser>(
   },
 );
 
-const User = model<IUser>("drUser", userSchema, "dronerush_users");
+userSchema.pre("save", async function (next) {
+  this.password = await argon2.hash(this.password);
+  next();
+});
+
+userSchema.post("save", function (doc, next) {
+  doc.password = "";
+  next();
+});
+
+userSchema.statics.isPasswordMatched = async function (
+  plainTextPassword: string,
+  hashedPassword: string,
+) {
+  return await argon2.verify(hashedPassword, plainTextPassword);
+};
+
+const User = model<IUser, IUserModelType>(
+  "drUser",
+  userSchema,
+  "dronerush_users",
+);
 export default User;

@@ -23,6 +23,7 @@ const getUserOrdersFromDB = async ({
     .sort()
     .paginate()
     .fields();
+
   const data = await ordersQuery.modelQuery;
   const meta = await ordersQuery.countTotal();
   return {

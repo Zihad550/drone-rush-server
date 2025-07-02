@@ -1,9 +1,14 @@
 import { Router } from "express";
 import { ProductRoutes } from "../modules/drProduct/drProduct.route";
 import { OrderRoutes } from "../modules/drOrder/drOrder.route";
+import { AuthRoutes } from "../modules/drAuth/auth.route";
 
 const router = Router();
 const moduleRoutes = [
+  {
+    path: "/auth",
+    route: AuthRoutes,
+  },
   {
     path: "/products",
     route: ProductRoutes,

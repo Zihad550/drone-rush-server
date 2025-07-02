@@ -14,6 +14,7 @@ async function main() {
     console.log(err);
   }
 }
+main();
 
 process.on("unhandledRejection", () => {
   if (server)

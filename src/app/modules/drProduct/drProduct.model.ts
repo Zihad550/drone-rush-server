@@ -21,18 +21,18 @@ const productSchema = new Schema<IProduct>(
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "drCategory",
       required: true,
     },
     reviews: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Review",
+        ref: "drReview",
       },
     ],
     brand: {
       type: Schema.Types.ObjectId,
-      ref: "Brand",
+      ref: "drBrand",
       required: true,
     },
     quantity: {
