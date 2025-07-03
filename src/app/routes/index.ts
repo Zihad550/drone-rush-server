@@ -5,6 +5,7 @@ import { AuthRoutes } from "../modules/drAuth/auth.route";
 import { CategoryRoutes } from "../modules/drCategory/drCategory.route";
 import { BrandRoutes } from "../modules/drBrand/drBrand.route";
 import { UserRoutes } from "../modules/drUser/drUser.route";
+import { ShippingInformationRoutes } from "../modules/drShippingInformation/drShippingInformation.route";
 
 const router = Router();
 const moduleRoutes = [
@@ -31,6 +32,10 @@ const moduleRoutes = [
   {
     path: "/user",
     route: UserRoutes,
+  },
+  {
+    path: "/shipping-information",
+    route: ShippingInformationRoutes,
   },
 ];
 

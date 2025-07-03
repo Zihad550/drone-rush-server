@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import IShippingInfo from "./dronerushShippingInformation.interface";
+import IShippingInfo from "./drShippingInformation.interface";
 
 const shippingInformationSchema = new Schema<IShippingInfo>(
   {
