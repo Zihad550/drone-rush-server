@@ -2,10 +2,31 @@ import status from "http-status";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import useObjectId from "../../utils/useObjectId";
-import { OrderSearchableFields } from "./drOrder.constant";
+import { ORDER_STATUS, OrderSearchableFields } from "./drOrder.constant";
 import IOrder, { TOrderStatus } from "./drOrder.interface";
 import Order from "./drOrder.model";
 import Product from "../drProduct/drProduct.model";
+import { IJwtPayload } from "../../interface";
+
+const getOrdersFromDB = async (query: Record<string, unknown>) => {
+  const ordersQuery = new QueryBuilder(
+    Order.find().populate("user", "name").populate("product", "price name img"),
+    query,
+  )
+    .search(OrderSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  console.log("model query ->", ordersQuery.modelQuery.getFilter());
+  const data = await ordersQuery.modelQuery;
+  const meta = await ordersQuery.countTotal();
+  return {
+    data,
+    meta,
+  };
+};
 
 const getUserOrdersFromDB = async ({
   userId,
@@ -50,16 +71,19 @@ const createOrderIntoDB = async (payload: IOrder, userId: string) => {
   return createdDoc;
 };
 
-const updateOrderIntoDB = async ({
-  orderStatus,
+const updateOrderStatusIntoDB = async ({
+  payload: { status: orderStatus, cancelReason },
   id,
+  user,
 }: {
-  orderStatus: TOrderStatus;
+  payload: { status: TOrderStatus; cancelReason?: string };
   id: string;
+  user: IJwtPayload;
 }) => {
+  console.log(user);
   const data = await Order.findByIdAndUpdate(
     id,
-    { status: orderStatus },
+    { status: orderStatus, admin: user.id, cancelReason },
     { new: true },
   );
   if (!data) throw new AppError(status.NOT_FOUND, "Order not found!");
@@ -67,8 +91,9 @@ const updateOrderIntoDB = async ({
 };
 
 export const OrderServices = {
+  getOrdersFromDB,
   getUserOrdersFromDB,
   getOrderByIdFromDB,
   createOrderIntoDB,
-  updateOrderIntoDB,
+  updateOrderStatusIntoDB,
 };

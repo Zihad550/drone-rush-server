@@ -4,6 +4,7 @@ import { OrderRoutes } from "../modules/drOrder/drOrder.route";
 import { AuthRoutes } from "../modules/drAuth/auth.route";
 import { CategoryRoutes } from "../modules/drCategory/drCategory.route";
 import { BrandRoutes } from "../modules/drBrand/drBrand.route";
+import { UserRoutes } from "../modules/drUser/drUser.route";
 
 const router = Router();
 const moduleRoutes = [
@@ -26,6 +27,10 @@ const moduleRoutes = [
   {
     path: "/brands",
     route: BrandRoutes,
+  },
+  {
+    path: "/user",
+    route: UserRoutes,
   },
 ];
 

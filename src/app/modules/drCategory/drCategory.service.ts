@@ -11,6 +11,7 @@ const getCategoriesFromDB = async (query: Record<string, unknown>) => {
     .paginate()
     .fields();
   const data = await categoriesQuery.modelQuery;
+
   const meta = await categoriesQuery.countTotal();
   return {
     data,

@@ -21,10 +21,8 @@ const register = async (payload: IUser) => {
   if (!newUser) throw new AppError(status.BAD_REQUEST, "Failed to create user");
 
   const jwtPayload = {
-    user: {
-      id: String(newUser._id),
-      role: newUser.role,
-    },
+    id: String(newUser._id),
+    role: newUser.role,
   };
 
   const accessToken = createToken(
@@ -57,10 +55,8 @@ const login = async (payload: Pick<IUser, "email" | "password">) => {
     throw new AppError(status.BAD_REQUEST, "Something went wrong!");
 
   const jwtPayload = {
-    user: {
-      id: String(userExists._id),
-      role: userExists.role,
-    },
+    id: String(userExists._id),
+    role: userExists.role,
   };
 
   const accessToken = createToken(

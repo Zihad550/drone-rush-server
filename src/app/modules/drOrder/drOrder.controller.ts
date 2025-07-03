@@ -3,6 +3,18 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { OrderServices } from "./drOrder.service";
 
+const getOrders = catchAsync(async (req, res) => {
+  console.log("query ->", req.query);
+  const { data, meta } = await OrderServices.getOrdersFromDB(req.query);
+  sendResponse(res, {
+    data,
+    statusCode: status.OK,
+    success: true,
+    message: "Orders retrieved successfully",
+    meta,
+  });
+});
+
 const getUserOrders = catchAsync(async (req, res) => {
   const { user } = req;
   const { data, meta } = await OrderServices.getUserOrdersFromDB({
@@ -39,10 +51,12 @@ const createOrder = catchAsync(async (req, res) => {
   });
 });
 
-const updateOrder = catchAsync(async (req, res) => {
-  const data = await OrderServices.updateOrderIntoDB({
-    orderStatus: req.body.status,
+const updateOrderStatus = catchAsync(async (req, res) => {
+  console.log(req.params.id);
+  const data = await OrderServices.updateOrderStatusIntoDB({
+    payload: req.body,
     id: req.params.id,
+    user: req.user,
   });
   sendResponse(res, {
     data,
@@ -53,8 +67,9 @@ const updateOrder = catchAsync(async (req, res) => {
 });
 
 export const OrderControllers = {
+  getOrders,
   getUserOrders,
   getOrderById,
   createOrder,
-  updateOrder,
+  updateOrderStatus,
 };

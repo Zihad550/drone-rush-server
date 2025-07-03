@@ -7,7 +7,7 @@ import Product from "./drProduct.model";
 
 const getProductsFromDB = async (query: Record<string, unknown>) => {
   const productsQuery = new QueryBuilder(
-    Product.find().populate("brand").populate("reviews").populate("category"),
+    Product.find().populate("brand").populate("category"),
     query,
   )
     .search(ProductSearchableFields)
@@ -26,12 +26,14 @@ const getProductsFromDB = async (query: Record<string, unknown>) => {
 const getProductByIdFromDB = async (id: string) => {
   return await Product.findOne({ _id: id })
     .populate("brand")
-    .populate("reviews")
     .populate("category");
+
+  // .populate("reviews")
 };
 
 const createProductIntoDB = async (payload: IProduct) => {
-  return Product.create(payload);
+  console.log("payload", payload);
+  return await Product.create(payload);
 };
 
 const deleteProductByIdFromDB = async (id: string) => {

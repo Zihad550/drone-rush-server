@@ -20,7 +20,7 @@ const getProductById = catchAsync(async (req, res) => {
     data,
     statusCode: status.OK,
     success: true,
-    message: "Products retrieved successfully",
+    message: "Product retrieved successfully",
   });
 });
 
@@ -30,7 +30,7 @@ const createProduct = catchAsync(async (req, res) => {
     data,
     statusCode: status.OK,
     success: true,
-    message: "Products retrieved successfully",
+    message: "Product created successfully",
   });
 });
 
@@ -41,7 +41,7 @@ const deleteProduct = catchAsync(async (req, res) => {
     data,
     statusCode: status.OK,
     success: true,
-    message: "Products retrieved successfully",
+    message: "Product deleted successfully",
   });
 });
 

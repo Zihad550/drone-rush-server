@@ -6,15 +6,18 @@ import IProduct from "../drProduct/drProduct.interface";
 export default interface IOrder {
   _id: Types.ObjectId;
   user: Types.ObjectId | IUser;
+  admin?: Types.ObjectId | IUser;
   shippingInformation: Types.ObjectId | IShippingInfo;
   product: Types.ObjectId | IProduct;
   status: TOrderStatus;
+  cancelReason?: string;
 }
 
 export type TOrderStatus =
+  | "pending"
   | "processing"
   | "packaged"
-  | "delivered"
-  | "buyer-cancelled"
-  | "seller-cancelled"
+  | "delivering"
+  | "user-cancelled"
+  | "admin-cancelled"
   | "completed";

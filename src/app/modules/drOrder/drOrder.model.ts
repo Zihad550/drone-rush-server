@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import IOrder from "./dronerushOrder.interface";
+import IOrder from "./drOrder.interface";
 import { OrderStatuses } from "./drOrder.constant";
 
 const orderSchema = new Schema<IOrder>(
@@ -7,6 +7,11 @@ const orderSchema = new Schema<IOrder>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "drUser",
+    },
+    admin: {
+      type: Schema.Types.ObjectId,
+      ref: "drUser",
+      required: false,
     },
     shippingInformation: {
       type: Schema.Types.ObjectId,
@@ -20,6 +25,9 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       enum: OrderStatuses,
       default: "processing",
+    },
+    cancelReason: {
+      type: String,
     },
   },
   {

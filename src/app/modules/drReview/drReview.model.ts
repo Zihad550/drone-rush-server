@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import IReview from "./dronerushReview.interface";
+import IReview from "./drReview.interface";
 
 const reviewSchema = new Schema<IReview>(
   {
