@@ -1,6 +1,6 @@
 # Drone Rush website server
 
-Live site [Drone Rush](https://drone-rush.netlify.app/).
+Live site [Drone Rush](https://drone-rush.web.app/).
 
 ## Technologies
 
