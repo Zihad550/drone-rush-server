@@ -2,7 +2,6 @@ import status from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { ShippingInformationService } from "./drShippingInformation.service";
-import { IJwtPayload } from "../../interface";
 
 const getAllShippingInformation = catchAsync(async (req, res) => {
   const { meta, data } =
@@ -81,10 +80,27 @@ const deleteShippingInformation = catchAsync(async (req, res) => {
   });
 });
 
+const getShippingInformationById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const data =
+    await ShippingInformationService.getShippingInformationByIdFromDb(
+      id,
+      req.user,
+    );
+
+  sendResponse(res, {
+    data,
+    message: "Shipping information fetched successfully",
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
 export const ShippingInformationControllers = {
   getAllShippingInformation,
   getUserShippingInformations,
   createShippingInformation,
   updateShippingInformation,
   deleteShippingInformation,
+  getShippingInformationById,
 };

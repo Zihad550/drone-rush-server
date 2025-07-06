@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { OrderControllers } from "./drOrder.controller";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../drUser/drUser.constant";
+import { OrderControllers } from "./drOrder.controller";
 
 const router = Router();
 
@@ -27,7 +27,7 @@ router.post(
 );
 router.patch(
   "/status/:id",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   OrderControllers.updateOrderStatus,
 );
 

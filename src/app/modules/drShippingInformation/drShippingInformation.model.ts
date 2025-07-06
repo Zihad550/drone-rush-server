@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { PAYMENT_METHODS } from "./drShippingInformation.constant";
 import IShippingInfo from "./drShippingInformation.interface";
 
 const shippingInformationSchema = new Schema<IShippingInfo>(
@@ -30,6 +31,11 @@ const shippingInformationSchema = new Schema<IShippingInfo>(
     zipCode: {
       type: String,
       required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: PAYMENT_METHODS,
+      default: "COD",
     },
   },
   {

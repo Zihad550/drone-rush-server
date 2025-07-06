@@ -12,4 +12,7 @@ export default interface IShippingInfo {
   zipCode: string;
   createdAt: Date;
   updatedAt: Date;
+  paymentMethod: TPaymentMethod;
 }
+
+export type TPaymentMethod = "COD" | "CARD";

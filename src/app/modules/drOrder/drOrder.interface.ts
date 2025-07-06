@@ -14,6 +14,11 @@ export default interface IOrder {
   totalPrice: number;
 }
 
+export interface IOrderProduct {
+  id: Types.ObjectId | IProduct;
+  quantity: number;
+}
+
 export interface ICreateOrder extends Omit<IOrder, "_id" | "products"> {
   products: { _id: string; quantity: number }[];
 }

@@ -5,7 +5,7 @@ import AppError from "../../errors/AppError";
 import { IJwtPayload } from "../../interface";
 import useObjectId from "../../utils/useObjectId";
 import Product from "../drProduct/drProduct.model";
-import { OrderSearchableFields } from "./drOrder.constant";
+import { ORDER_STATUS, OrderSearchableFields } from "./drOrder.constant";
 import { ICreateOrder, TOrderStatus } from "./drOrder.interface";
 import Order from "./drOrder.model";
 
@@ -13,7 +13,7 @@ const getOrdersFromDB = async (query: Record<string, unknown>) => {
   const ordersQuery = new QueryBuilder(
     Order.find()
       .populate("user", "name")
-      .populate("products", "price name img"),
+      .populate("products.id", "price name img"),
     query,
   )
     .search(OrderSearchableFields)
@@ -39,7 +39,12 @@ const getUserOrdersFromDB = async ({
   query: Record<string, unknown>;
 }) => {
   const ordersQuery = new QueryBuilder(
-    Order.find({ user: useObjectId(userId) }).populate("product"),
+    Order.find({
+      user: useObjectId(userId),
+      status: {
+        $nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
+      },
+    }).populate("products.id"),
     query,
   )
     .search(OrderSearchableFields)
@@ -57,7 +62,7 @@ const getUserOrdersFromDB = async ({
 };
 
 const getOrderByIdFromDB = async (id: string) => {
-  return await Order.findById(id).populate("product");
+  return await Order.findById(id).populate("products.id");
 };
 
 const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
@@ -83,7 +88,7 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     ...payload,
     user: new Types.ObjectId(user.id),
     totalPrice,
-    products: foundProducts.map((product) => product._id),
+    products: foundProducts.map((product) => ({ ...product, id: product._id })),
   };
   console.log(doc);
 
@@ -127,14 +132,51 @@ const updateOrderStatusIntoDB = async ({
   id: string;
   user: IJwtPayload;
 }) => {
-  console.log(user);
-  const data = await Order.findByIdAndUpdate(
-    id,
-    { status: orderStatus, admin: user.id, cancelReason },
-    { new: true },
-  );
-  if (!data) throw new AppError(status.NOT_FOUND, "Order not found!");
-  return data;
+  let orderExists;
+  if (user.role === "user")
+    orderExists = await Order.findOne({ _id: id, user: useObjectId(user.id) });
+  else orderExists = await Order.findOne({ _id: id });
+
+  if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");
+
+  const products = await Product.find({ _id: { $in: orderExists.products } });
+
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    let data;
+    if (user.role === "user")
+      data = await Order.updateOne(
+        { _id: id },
+        { status: orderStatus, cancelReason },
+        { new: true, session },
+      );
+    else
+      data = await Order.updateOne(
+        { _id: id },
+        { status: orderStatus, admin: user.id, cancelReason },
+        { new: true, session },
+      );
+    if (products?.length) {
+      for (const product of products) {
+        await Product.updateOne(
+          { _id: product._id },
+          { $inc: { quantity: +product.quantity } },
+          { session },
+        );
+      }
+    }
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return data;
+  } catch {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to update order!");
+  }
 };
 
 export const OrderServices = {

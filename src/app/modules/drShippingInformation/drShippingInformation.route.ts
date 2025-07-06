@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { ShippingInformationControllers } from "./drShippingInformation.controller";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../drUser/drUser.constant";
+import { ShippingInformationControllers } from "./drShippingInformation.controller";
 
 const router = Router();
 
@@ -19,6 +19,11 @@ router.post(
   "/",
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
   ShippingInformationControllers.createShippingInformation,
+);
+router.get(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+  ShippingInformationControllers.getShippingInformationById,
 );
 router.patch(
   "/:id",

@@ -1,5 +1,6 @@
 import QueryBuilder from "../../builder/QueryBuilder";
 import { IJwtPayload } from "../../interface";
+import useObjectId from "../../utils/useObjectId";
 import IShippingInfo from "./drShippingInformation.interface";
 import ShippingInformation from "./drShippingInformation.model";
 
@@ -38,6 +39,17 @@ const getShippingInformationByUserIdFromDb = async (userId: string) => {
   return result;
 };
 
+const getShippingInformationByIdFromDb = async (
+  id: string,
+  user: IJwtPayload,
+) => {
+  const result = await ShippingInformation.findOne({
+    _id: id,
+    user: useObjectId(user.id),
+  });
+  return result;
+};
+
 const createShippingInformationIntoDb = async (payload: IShippingInfo) => {
   const result = await ShippingInformation.create(payload);
   return result;
@@ -71,4 +83,5 @@ export const ShippingInformationService = {
   createShippingInformationIntoDb,
   updateShippingInformationIntoDB,
   deleteShippingInformationFromDB,
+  getShippingInformationByIdFromDb,
 };

@@ -1,9 +1,9 @@
 import status from "http-status";
+import env from "../../../env";
 import AppError from "../../errors/AppError";
 import IUser from "../drUser/drUser.interface";
 import User from "../drUser/drUser.model";
 import { createToken } from "./auth.utils";
-import env from "../../../env";
 
 const register = async (payload: IUser) => {
   const userExists = await User.findOne({ email: payload.email });
@@ -44,6 +44,7 @@ const register = async (payload: IUser) => {
 
 const login = async (payload: Pick<IUser, "email" | "password">) => {
   const userExists = await User.findOne({ email: payload.email });
+  console.log(userExists);
   if (!userExists)
     throw new AppError(status.BAD_REQUEST, "Something went wrong!");
 
