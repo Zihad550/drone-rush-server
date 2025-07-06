@@ -1,8 +1,8 @@
 import status from "http-status";
+import env from "../../../env";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { AuthServices } from "./auth.service";
-import env from "../../../env";
 
 const register = catchAsync(async (req, res) => {
   const { accessToken, refreshToken } = await AuthServices.register(req.body);
@@ -35,7 +35,18 @@ const login = catchAsync(async (req, res) => {
   });
 });
 
+const refreshToken = catchAsync(async (req, res) => {
+  const { refreshToken } = req.cookies;
+  const data = await AuthServices.refreshToken(refreshToken);
+  sendResponse(res, {
+    data,
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
 export const AuthControllers = {
   register,
   login,
+  refreshToken,
 };

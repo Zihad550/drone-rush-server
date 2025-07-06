@@ -3,7 +3,7 @@ import env from "../../../env";
 import AppError from "../../errors/AppError";
 import IUser from "../drUser/drUser.interface";
 import User from "../drUser/drUser.model";
-import { createToken } from "./auth.utils";
+import { createToken, verifyToken } from "./auth.utils";
 
 const register = async (payload: IUser) => {
   const userExists = await User.findOne({ email: payload.email });
@@ -76,7 +76,32 @@ const login = async (payload: Pick<IUser, "email" | "password">) => {
   };
 };
 
+const refreshToken = async (token: string) => {
+  const { id } = verifyToken(token, env.JWT_REFRESH_SECRET);
+
+  const user = await User.findById(id);
+  if (!user) throw new AppError(status.NOT_FOUND, "User not found");
+  if (user.status === "blocked")
+    throw new AppError(status.FORBIDDEN, "User is blocked");
+
+  const jwtPayload = {
+    id: String(user._id),
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    env.JWT_ACCESS_SECRET,
+    env.JWT_ACCESS_EXPIRES_IN,
+  );
+
+  return {
+    accessToken,
+  };
+};
+
 export const AuthServices = {
   register,
   login,
+  refreshToken,
 };
