@@ -22,7 +22,6 @@ const getOrdersFromDB = async (query: Record<string, unknown>) => {
     .paginate()
     .fields();
 
-  console.log("model query ->", ordersQuery.modelQuery.getFilter());
   const data = await ordersQuery.modelQuery;
   const meta = await ordersQuery.countTotal();
   return {
@@ -90,7 +89,6 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     totalPrice,
     products: foundProducts.map((product) => ({ ...product, id: product._id })),
   };
-  console.log(doc);
 
   const session = await mongoose.startSession();
   try {
@@ -115,8 +113,7 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     await session.endSession();
 
     return createdDoc[0];
-  } catch (err) {
-    console.log(err);
+  } catch {
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(status.BAD_REQUEST, "Failed to create order!");
@@ -138,6 +135,9 @@ const updateOrderStatusIntoDB = async ({
   else orderExists = await Order.findOne({ _id: id });
 
   if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");
+
+  if (user.role === "user" && orderExists.status === "completed")
+    throw new AppError(status.BAD_REQUEST, "Order is already completed!");
 
   const products = await Product.find({ _id: { $in: orderExists.products } });
 

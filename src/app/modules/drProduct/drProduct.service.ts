@@ -32,7 +32,6 @@ const getProductByIdFromDB = async (id: string) => {
 };
 
 const createProductIntoDB = async (payload: IProduct) => {
-  console.log("payload", payload);
   return await Product.create(payload);
 };
 

@@ -44,7 +44,6 @@ const register = async (payload: IUser) => {
 
 const login = async (payload: Pick<IUser, "email" | "password">) => {
   const userExists = await User.findOne({ email: payload.email });
-  console.log(userExists);
   if (!userExists)
     throw new AppError(status.BAD_REQUEST, "Something went wrong!");
 
