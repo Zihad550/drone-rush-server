@@ -3,7 +3,7 @@ import AppError from "../../errors/AppError";
 import IUser from "../drUser/drUser.interface";
 import User from "../drUser/drUser.model";
 import { createToken } from "./auth.utils";
-import config from "../../config";
+import env from "../../../env";
 
 const register = async (payload: IUser) => {
   const userExists = await User.findOne({ email: payload.email });
@@ -27,13 +27,13 @@ const register = async (payload: IUser) => {
 
   const accessToken = createToken(
     jwtPayload,
-    config.jwt_access_secret,
-    config.jwt_access_expires_in,
+    env.JWT_ACCESS_SECRET,
+    env.JWT_ACCESS_EXPIRES_IN,
   );
   const refreshToken = createToken(
     jwtPayload,
-    config.jwt_refresh_secret,
-    config.jwt_refresh_expires_in,
+    env.JWT_REFRESH_SECRET,
+    env.JWT_REFRESH_EXPIRES_IN,
   );
 
   return {
@@ -61,13 +61,13 @@ const login = async (payload: Pick<IUser, "email" | "password">) => {
 
   const accessToken = createToken(
     jwtPayload,
-    config.jwt_access_secret,
-    config.jwt_access_expires_in,
+    env.JWT_ACCESS_SECRET,
+    env.JWT_ACCESS_EXPIRES_IN,
   );
   const refreshToken = createToken(
     jwtPayload,
-    config.jwt_refresh_secret,
-    config.jwt_refresh_expires_in,
+    env.JWT_REFRESH_SECRET,
+    env.JWT_REFRESH_EXPIRES_IN,
   );
 
   return {

@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     dependencies:
+      "@types/cookie-parser":
+        specifier: ^1.4.9
+        version: 1.4.9(@types/express@5.0.3)
       argon2:
         specifier: ^0.43.0
         version: 0.43.0
@@ -494,6 +497,14 @@ packages:
       {
         integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==,
       }
+
+  "@types/cookie-parser@1.4.9":
+    resolution:
+      {
+        integrity: sha512-tGZiZ2Gtc4m3wIdLkZ8mkj1T6CEHb35+VApbL2T14Dew8HA7c+04dmKqsKRNC+8RJPm16JEK0tFSwdZqubfc4g==,
+      }
+    peerDependencies:
+      "@types/express": "*"
 
   "@types/cors@2.8.19":
     resolution:
@@ -3479,6 +3490,10 @@ snapshots:
   "@types/connect@3.4.38":
     dependencies:
       "@types/node": 24.0.6
+
+  "@types/cookie-parser@1.4.9(@types/express@5.0.3)":
+    dependencies:
+      "@types/express": 5.0.3
 
   "@types/cors@2.8.19":
     dependencies:

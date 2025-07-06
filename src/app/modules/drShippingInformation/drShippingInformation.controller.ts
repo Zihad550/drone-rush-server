@@ -2,6 +2,7 @@ import status from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { ShippingInformationService } from "./drShippingInformation.service";
+import { IJwtPayload } from "../../interface";
 
 const getAllShippingInformation = catchAsync(async (req, res) => {
   const { meta, data } =
@@ -16,10 +17,12 @@ const getAllShippingInformation = catchAsync(async (req, res) => {
   });
 });
 
-const getShippingInformationByUserId = catchAsync(async (req, res) => {
+const getUserShippingInformations = catchAsync(async (req, res) => {
+  const user = req.user;
+
   const data =
     await ShippingInformationService.getShippingInformationByUserIdFromDb(
-      req.user.id,
+      user.id,
     );
 
   sendResponse(res, {
@@ -31,9 +34,14 @@ const getShippingInformationByUserId = catchAsync(async (req, res) => {
 });
 
 const createShippingInformation = catchAsync(async (req, res) => {
-  const data = await ShippingInformationService.createShippingInformationIntoDb(
-    req.body,
-  );
+  const user = req.user;
+  const payload = {
+    ...req.body,
+    user: user.id,
+  };
+
+  const data =
+    await ShippingInformationService.createShippingInformationIntoDb(payload);
 
   sendResponse(res, {
     data,
@@ -60,8 +68,10 @@ const updateShippingInformation = catchAsync(async (req, res) => {
 
 const deleteShippingInformation = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const data =
-    await ShippingInformationService.deleteShippingInformationFromDB(id);
+  const data = await ShippingInformationService.deleteShippingInformationFromDB(
+    id,
+    req.user,
+  );
 
   sendResponse(res, {
     data,
@@ -73,7 +83,7 @@ const deleteShippingInformation = catchAsync(async (req, res) => {
 
 export const ShippingInformationControllers = {
   getAllShippingInformation,
-  getShippingInformationByUserId,
+  getUserShippingInformations,
   createShippingInformation,
   updateShippingInformation,
   deleteShippingInformation,

@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import IUser from "../drUser/dronerushUser.interface";
+import IUser from "../drUser/drUser.interface";
 
 export default interface IReview {
   _id: Types.ObjectId;

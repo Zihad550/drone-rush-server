@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import router from "./app/routes";
-import config from "./app/config";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
+import env from "./env";
 
 // middle ware
 const app = express();
@@ -13,9 +13,7 @@ app.use(
   cors({
     credentials: true,
     origin: [
-      config.NODE_ENV === "development"
-        ? config.DEV_APP_URL
-        : config.PRO_APP_URL,
+      env.NODE_ENV === "development" ? env.DEV_APP_URL : env.PRO_APP_URL,
     ],
   }),
 );

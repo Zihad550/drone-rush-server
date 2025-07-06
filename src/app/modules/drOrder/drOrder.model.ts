@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
-import IOrder from "./drOrder.interface";
 import { OrderStatuses } from "./drOrder.constant";
+import IOrder from "./drOrder.interface";
 
 const orderSchema = new Schema<IOrder>(
   {
@@ -17,7 +17,7 @@ const orderSchema = new Schema<IOrder>(
       type: Schema.Types.ObjectId,
       ref: "drShippingInformation",
     },
-    product: {
+    products: {
       type: Schema.Types.ObjectId,
       ref: "drProduct",
     },
@@ -28,6 +28,10 @@ const orderSchema = new Schema<IOrder>(
     },
     cancelReason: {
       type: String,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
     },
   },
   {

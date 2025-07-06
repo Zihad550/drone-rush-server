@@ -6,7 +6,7 @@ import User from "./drUser.model";
 const updateUserToAdmin = async (email: string) => {
   const user = await User.findOneAndUpdate(
     { email },
-    { role: USER_ROLE.admin },
+    { role: USER_ROLE.ADMIN },
   );
   if (!user) throw new AppError(status.NOT_FOUND, "User not found!");
 };

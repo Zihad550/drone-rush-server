@@ -1,4 +1,5 @@
 import QueryBuilder from "../../builder/QueryBuilder";
+import { IJwtPayload } from "../../interface";
 import IShippingInfo from "./drShippingInformation.interface";
 import ShippingInformation from "./drShippingInformation.model";
 
@@ -33,9 +34,7 @@ const getAllShippingInformationFromDb = async (
 };
 
 const getShippingInformationByUserIdFromDb = async (userId: string) => {
-  const result = await ShippingInformation.find({ user: userId }).populate(
-    "user",
-  );
+  const result = await ShippingInformation.find({ user: userId });
   return result;
 };
 
@@ -55,8 +54,14 @@ const updateShippingInformationIntoDB = async (
   return result;
 };
 
-const deleteShippingInformationFromDB = async (id: string) => {
-  const result = await ShippingInformation.findByIdAndDelete(id);
+const deleteShippingInformationFromDB = async (
+  id: string,
+  user: IJwtPayload,
+) => {
+  const result = await ShippingInformation.findOneAndDelete({
+    _id: id,
+    user: user.id,
+  });
   return result;
 };
 

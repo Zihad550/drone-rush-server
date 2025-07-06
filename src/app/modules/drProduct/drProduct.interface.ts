@@ -11,7 +11,7 @@ export default interface IProduct {
   category: Types.ObjectId | ICategory;
   reviews: Types.ObjectId[] | IReview[];
   brand: Types.ObjectId | IBrand;
-  quantity?: number;
+  quantity: number;
   createdAt: Date;
   updatedAt: Date;
 }
