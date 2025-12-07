@@ -7,7 +7,7 @@ import {
 const handleZodError = (err: ZodError): IGenericErrorResponse => {
   const statusCode = 400;
   const errorSources: IErrorSource[] = err.issues.map((issue: ZodIssue) => ({
-    path: issue?.path[issue.path.length - 1],
+    path: issue?.path[issue.path.length - 1] as string | number,
     message: issue.message,
   }));
   return {

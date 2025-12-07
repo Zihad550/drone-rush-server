@@ -6,6 +6,7 @@ import { CategoryRoutes } from "../modules/drCategory/drCategory.route";
 import { BrandRoutes } from "../modules/drBrand/drBrand.route";
 import { UserRoutes } from "../modules/drUser/drUser.route";
 import { ShippingInformationRoutes } from "../modules/drShippingInformation/drShippingInformation.route";
+import { WishlistRoutes } from "../modules/drWishlist/drWishlist.route";
 
 const router = Router();
 const moduleRoutes = [
@@ -36,6 +37,10 @@ const moduleRoutes = [
   {
     path: "/shipping-information",
     route: ShippingInformationRoutes,
+  },
+  {
+    path: "/wishlist",
+    route: WishlistRoutes,
   },
 ];
 

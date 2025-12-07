@@ -1,5 +1,0 @@
-onlyBuiltDependencies:
-  - "@firebase/util"
-  - argon2
-  - bcrypt
-  - protobufjs

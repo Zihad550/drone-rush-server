@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import env from "../../env";
 import AppError from "../errors/AppError";
 import catchAsync from "../utils/catchAsync";
-import { TUserRole } from "../modules/drUser/drUser.interface";
+import type { TUserRole } from "../modules/drUser/drUser.interface";
 import User from "../modules/drUser/drUser.model";
-import { IJwtPayload } from "../interface";
+import type { IJwtPayload } from "../interface";
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req, res, next) => {

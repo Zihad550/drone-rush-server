@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-import { z, ZodError } from "zod/v4";
+import { z, ZodError } from "zod";
 
 dotenv.config({
   path: path.join(process.cwd(), ".env"),
