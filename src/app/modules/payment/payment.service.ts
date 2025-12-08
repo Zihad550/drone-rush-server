@@ -4,163 +4,163 @@ import AppError from "../../errors/AppError";
 import { generatePdf, type IInvoiceData } from "../../utils/invoice";
 import { sendEmail } from "../../utils/sendEmail";
 import { useObjectId } from "../../utils/useObjectId";
-import Product from "../drProduct/drProduct.model";
-import IUser from "../drUser/drUser.interface";
+import Cart from "../cart/cart.model";
+import Order from "../order/order.model";
+import Product from "../product/product.model";
+import type IUser from "../user/user.interface";
 import { PAYMENT_STATUS } from "./payment.interface";
 import Payment from "./payment.model";
-import Order from "../drOrder/drOrder.model";
-import Cart from "../drCart/drCart.model";
 
 const successPayment = async (query: Record<string, string>) => {
-  const session = await Product.startSession();
-  session.startTransaction();
+	const session = await Product.startSession();
+	session.startTransaction();
 
-  try {
-    // Update payment status
-    const updated_payment = await Payment.findOneAndUpdate(
-      { transactionId: query.transactionId },
-      { status: PAYMENT_STATUS.PAID },
-      { new: true, runValidators: true, session },
-    ).populate("user");
+	try {
+		// Update payment status
+		const updated_payment = await Payment.findOneAndUpdate(
+			{ transactionId: query.transactionId },
+			{ status: PAYMENT_STATUS.PAID },
+			{ new: true, runValidators: true, session },
+		).populate("user");
 
-    if (!updated_payment)
-      throw new AppError(status.NOT_FOUND, "Payment not found");
+		if (!updated_payment)
+			throw new AppError(status.NOT_FOUND, "Payment not found");
 
-    const user = updated_payment.user as IUser;
+		const user = updated_payment.user as IUser;
 
-    // Generate invoice
-    const invoiceData: IInvoiceData = {
-      price: updated_payment.amount,
-      transaction_id: updated_payment.transactionId,
-      user_name: user.name || "",
-      download_link: "",
-    };
+		// Generate invoice
+		const invoiceData: IInvoiceData = {
+			price: updated_payment.amount,
+			transaction_id: updated_payment.transactionId,
+			user_name: user.name || "",
+			download_link: "",
+		};
 
-    const pdf_buffer = await generatePdf(invoiceData);
-    const cloudinary_result = await uploadBufferToCloudinary(
-      pdf_buffer,
-      "invoice",
-    );
+		const pdf_buffer = await generatePdf(invoiceData);
+		const cloudinary_result = await uploadBufferToCloudinary(
+			pdf_buffer,
+			"invoice",
+		);
 
-    await Payment.findByIdAndUpdate(
-      updated_payment._id,
-      { invoiceUrl: cloudinary_result.secure_url },
-      { runValidators: true, session },
-    );
+		await Payment.findByIdAndUpdate(
+			updated_payment._id,
+			{ invoiceUrl: cloudinary_result.secure_url },
+			{ runValidators: true, session },
+		);
 
-    const order = await Order.findByIdAndUpdate(
-      updated_payment.order,
-      { status: "COMPLETED" },
-      { runValidators: true, session },
-    );
-    if (!order) throw new AppError(status.NOT_FOUND, "Order not found");
+		const order = await Order.findByIdAndUpdate(
+			updated_payment.order,
+			{ status: "COMPLETED" },
+			{ runValidators: true, session },
+		);
+		if (!order) throw new AppError(status.NOT_FOUND, "Order not found");
 
-    // delete cart
-    await Cart.deleteMany({ user: useObjectId(user._id) });
+		// delete cart
+		await Cart.deleteMany({ user: useObjectId(user._id) });
 
-    for (const product of order.products) {
-      await Product.findOneAndUpdate(
-        { _id: product.id },
-        {
-          $inc: { quantity: -product.quantity },
-        },
-        { session },
-      );
-    }
+		for (const product of order.products) {
+			await Product.findOneAndUpdate(
+				{ _id: product.id },
+				{
+					$inc: { quantity: -product.quantity },
+				},
+				{ session },
+			);
+		}
 
-    invoiceData.download_link = cloudinary_result.secure_url;
+		invoiceData.download_link = cloudinary_result.secure_url;
 
-    // Send email with invoice
-    await sendEmail({
-      to: user.email,
-      subject: "Your purchase Invoice",
-      templateName: "invoice",
-      templateData: invoiceData,
-      attachments: [
-        {
-          filename: "invoice.pdf",
-          content: pdf_buffer,
-          contentType: "application/pdf",
-        },
-      ],
-    });
+		// Send email with invoice
+		await sendEmail({
+			to: user.email,
+			subject: "Your purchase Invoice",
+			templateName: "invoice",
+			templateData: invoiceData,
+			attachments: [
+				{
+					filename: "invoice.pdf",
+					content: pdf_buffer,
+					contentType: "application/pdf",
+				},
+			],
+		});
 
-    await session.commitTransaction();
-    return { success: true, message: "Payment Completed Successfully" };
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  }
+		await session.commitTransaction();
+		return { success: true, message: "Payment Completed Successfully" };
+	} catch (error) {
+		await session.abortTransaction();
+		throw error;
+	}
 };
 
 const failPayment = async (query: Record<string, string>) => {
-  const session = await Product.startSession();
-  session.startTransaction();
+	const session = await Product.startSession();
+	session.startTransaction();
 
-  try {
-    const updated_payment = await Payment.findOneAndUpdate(
-      { transactionId: query.transactionId },
-      { status: PAYMENT_STATUS.FAILED },
-      { new: true, runValidators: true, session },
-    );
-    if (!updated_payment) throw new Error("Payment not found");
+	try {
+		const updated_payment = await Payment.findOneAndUpdate(
+			{ transactionId: query.transactionId },
+			{ status: PAYMENT_STATUS.FAILED },
+			{ new: true, runValidators: true, session },
+		);
+		if (!updated_payment) throw new Error("Payment not found");
 
-    const updated_order = await Order.findByIdAndUpdate(
-      updated_payment.order,
-      { status: "FAILED" },
-      { runValidators: true, session },
-    );
+		const updated_order = await Order.findByIdAndUpdate(
+			updated_payment.order,
+			{ status: "FAILED" },
+			{ runValidators: true, session },
+		);
 
-    if (!updated_order) throw new Error("Order not found");
+		if (!updated_order) throw new Error("Order not found");
 
-    await session.commitTransaction();
-    return { success: false, message: "Payment Failed" };
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  }
+		await session.commitTransaction();
+		return { success: false, message: "Payment Failed" };
+	} catch (error) {
+		await session.abortTransaction();
+		throw error;
+	}
 };
 
 const cancelPayment = async (query: Record<string, string>) => {
-  const session = await Product.startSession();
-  session.startTransaction();
+	const session = await Product.startSession();
+	session.startTransaction();
 
-  try {
-    const updated_payment = await Payment.findOneAndUpdate(
-      { transactionId: query.transactionId },
-      { status: PAYMENT_STATUS.CANCELLED },
-      { new: true, runValidators: true, session },
-    );
-    if (!updated_payment) throw new Error("Payment not found");
+	try {
+		const updated_payment = await Payment.findOneAndUpdate(
+			{ transactionId: query.transactionId },
+			{ status: PAYMENT_STATUS.CANCELLED },
+			{ new: true, runValidators: true, session },
+		);
+		if (!updated_payment) throw new Error("Payment not found");
 
-    const updated_order = await Order.findByIdAndUpdate(
-      updated_payment.order,
-      { status: "CANCELLED" },
-      { runValidators: true, session },
-    );
-    if (!updated_order) throw new Error("Order not found");
+		const updated_order = await Order.findByIdAndUpdate(
+			updated_payment.order,
+			{ status: "CANCELLED" },
+			{ runValidators: true, session },
+		);
+		if (!updated_order) throw new Error("Order not found");
 
-    await session.commitTransaction();
-    return { success: false, message: "Payment Cancelled" };
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  }
+		await session.commitTransaction();
+		return { success: false, message: "Payment Cancelled" };
+	} catch (error) {
+		await session.abortTransaction();
+		throw error;
+	}
 };
 
 const getInvoiceDownloadUrl = async (paymentId: string) => {
-  const payment = await Payment.findById(useObjectId(paymentId)).select(
-    "invoiceUrl",
-  );
-  if (!payment?.invoiceUrl) {
-    throw new AppError(404, "Invoice not found");
-  }
-  return payment.invoiceUrl;
+	const payment = await Payment.findById(useObjectId(paymentId)).select(
+		"invoiceUrl",
+	);
+	if (!payment?.invoiceUrl) {
+		throw new AppError(404, "Invoice not found");
+	}
+	return payment.invoiceUrl;
 };
 
 export const PaymentServices = {
-  successPayment,
-  failPayment,
-  cancelPayment,
-  getInvoiceDownloadUrl,
+	successPayment,
+	failPayment,
+	cancelPayment,
+	getInvoiceDownloadUrl,
 };

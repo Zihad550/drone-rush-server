@@ -1,6 +1,6 @@
 import express from "express";
 import auth from "../../middlewares/auth";
-import { USER_ROLE } from "../drUser/drUser.constant";
+import { USER_ROLE } from "../user/user.constant";
 import { PaymentController } from "./payment.controller";
 
 const router = express.Router();
@@ -15,9 +15,9 @@ router.post("/validate-payment", PaymentController.validatePayment);
 
 // Invoice download (Authenticated users)
 router.get(
-  "/invoice/:paymentId",
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  PaymentController.getInvoiceDownloadUrl,
+	"/invoice/:paymentId",
+	auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+	PaymentController.getInvoiceDownloadUrl,
 );
 
 export const PaymentRoutes = router;

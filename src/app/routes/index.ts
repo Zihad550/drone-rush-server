@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { AuthRoutes } from "../modules/drAuth/auth.route";
-import { BrandRoutes } from "../modules/drBrand/drBrand.route";
-import { CartRoutes } from "../modules/drCart/drCart.route";
-import { CategoryRoutes } from "../modules/drCategory/drCategory.route";
-import { OrderRoutes } from "../modules/drOrder/drOrder.route";
-import { ProductRoutes } from "../modules/drProduct/drProduct.route";
-import { ShippingInformationRoutes } from "../modules/drShippingInformation/drShippingInformation.route";
-import { UserRoutes } from "../modules/drUser/drUser.route";
-import { WishlistRoutes } from "../modules/drWishlist/drWishlist.route";
+import { AuthRoutes } from "../modules/auth/auth.route";
+import { BrandRoutes } from "../modules/brand/brand.route";
+import { CartRoutes } from "../modules/cart/cart.route";
+import { CategoryRoutes } from "../modules/category/category.route";
+import { OrderRoutes } from "../modules/order/order.route";
 import { PaymentRoutes } from "../modules/payment/payment.route";
+import { ProductRoutes } from "../modules/product/product.route";
+import { ShippingInformationRoutes } from "../modules/shippingInformation/shippingInformation.route";
+import { UserRoutes } from "../modules/user/user.route";
+import { WishlistRoutes } from "../modules/wishlist/wishlist.route";
 
 const router = Router();
 const moduleRoutes = [

@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import env from "../../env";
 import AppError from "../errors/AppError";
 import type { IJwtPayload } from "../interface";
-import type { TUserRole } from "../modules/drUser/drUser.interface";
-import User from "../modules/drUser/drUser.model";
+import type { TUserRole } from "../modules/user/user.interface";
+import User from "../modules/user/user.model";
 import catchAsync from "../utils/catchAsync";
 
 const auth = (...requiredRoles: TUserRole[]) => {
