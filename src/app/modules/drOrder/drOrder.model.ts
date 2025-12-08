@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
 import { OrderStatuses } from "./drOrder.constant";
-import IOrder, { IOrderProduct } from "./drOrder.interface";
+import type IOrder from "./drOrder.interface";
+import type { IOrderProduct } from "./drOrder.interface";
 
 const orderProductSchema = new Schema<IOrderProduct>({
   id: {
@@ -19,11 +20,11 @@ const orderSchema = new Schema<IOrder>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "drUser",
+      required: true,
     },
-    admin: {
+    payment: {
       type: Schema.Types.ObjectId,
-      ref: "drUser",
-      required: false,
+      ref: "drPayment",
     },
     shippingInformation: {
       type: Schema.Types.ObjectId,
@@ -33,7 +34,7 @@ const orderSchema = new Schema<IOrder>(
     status: {
       type: String,
       enum: OrderStatuses,
-      default: "processing",
+      default: "PROCESSING",
     },
     cancelReason: {
       type: String,

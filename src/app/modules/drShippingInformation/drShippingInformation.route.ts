@@ -6,34 +6,34 @@ import { ShippingInformationControllers } from "./drShippingInformation.controll
 const router = Router();
 
 router.get(
-  "/",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  ShippingInformationControllers.getAllShippingInformation,
+	"/",
+	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+	ShippingInformationControllers.getAllShippingInformation,
 );
 router.get(
-  "/user",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
-  ShippingInformationControllers.getUserShippingInformations,
+	"/user",
+	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+	ShippingInformationControllers.getUserShippingInformations,
 );
 router.post(
-  "/",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
-  ShippingInformationControllers.createShippingInformation,
+	"/",
+	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+	ShippingInformationControllers.createShippingInformation,
 );
 router.get(
-  "/:id",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
-  ShippingInformationControllers.getShippingInformationById,
+	"/:id",
+	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+	ShippingInformationControllers.getShippingInformationById,
 );
 router.patch(
-  "/:id",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
-  ShippingInformationControllers.updateShippingInformation,
+	"/:id",
+	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+	ShippingInformationControllers.updateShippingInformation,
 );
 router.delete(
-  "/:id",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
-  ShippingInformationControllers.deleteShippingInformation,
+	"/:id",
+	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+	ShippingInformationControllers.deleteShippingInformation,
 );
 
 export const ShippingInformationRoutes = router;

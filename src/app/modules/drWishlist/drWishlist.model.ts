@@ -1,22 +1,22 @@
-import { Schema, model } from "mongoose";
-import IWishlist from "./drWishlist.interface";
+import { model, Schema } from "mongoose";
+import type IWishlist from "./drWishlist.interface";
 
 const wishlistSchema = new Schema<IWishlist>(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    product: {
-      type: Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
-    },
-  },
-  {
-    timestamps: { createdAt: "addedAt", updatedAt: false },
-  },
+	{
+		user: {
+			type: Schema.Types.ObjectId,
+			ref: "drUser",
+			required: true,
+		},
+		product: {
+			type: Schema.Types.ObjectId,
+			ref: "drProduct",
+			required: true,
+		},
+	},
+	{
+		timestamps: { createdAt: "addedAt", updatedAt: false },
+	},
 );
 
 // Compound unique index to prevent duplicate user-product pairs

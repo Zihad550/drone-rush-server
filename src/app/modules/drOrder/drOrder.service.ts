@@ -1,13 +1,21 @@
 import status from "http-status";
+import crypto from "crypto";
 import mongoose, { Types } from "mongoose";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
-import { IJwtPayload } from "../../interface";
-import useObjectId from "../../utils/useObjectId";
+import type { IJwtPayload } from "../../interface";
+import { useObjectId } from "../../utils/useObjectId";
 import Product from "../drProduct/drProduct.model";
 import { ORDER_STATUS, OrderSearchableFields } from "./drOrder.constant";
-import { ICreateOrder, TOrderStatus } from "./drOrder.interface";
+import type IOrder from "./drOrder.interface";
+import type { ICreateOrder, TOrderStatus } from "./drOrder.interface";
 import Order from "./drOrder.model";
+import Payment from "../payment/payment.model";
+import { ISSLCommerz } from "../payment/sslCommerz.interface";
+import User from "../drUser/drUser.model";
+import IProduct from "../drProduct/drProduct.interface";
+import { SSLServices } from "../payment/sslCommerz.service";
+import { PAYMENT_STATUS } from "../payment/payment.interface";
 
 const getOrdersFromDB = async (query: Record<string, unknown>) => {
   const ordersQuery = new QueryBuilder(
@@ -64,56 +72,104 @@ const getOrderByIdFromDB = async (id: string) => {
   return await Order.findById(id).populate("products.id");
 };
 
+const totalProductPrice = (
+  products: IProduct[],
+  cart_products: { _id: string; quantity: number }[],
+) => {
+  let total_price = 0;
+
+  products.forEach((product) => {
+    const quantity =
+      cart_products.find((item) => String(item._id) === String(product._id))
+        ?.quantity || 0;
+    total_price += product.price * quantity;
+  });
+
+  return total_price;
+};
+
 const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
-  const productIds = payload.products.map((item) => item._id);
+  const user_data = await User.findById(user.id);
+  if (!user_data) throw new AppError(status.NOT_FOUND, "User not found!");
+
+  const productIds = payload.products.map((item) => useObjectId(item._id));
   let foundProducts = await Product.find(
     { _id: { $in: productIds }, quantity: { $gte: 1 } },
     { price: 1, quantity: 1 },
   );
-  payload.products.forEach((buyItem) => {
-    foundProducts = foundProducts.filter(
-      (product) => product.quantity >= buyItem.quantity,
+
+  const tmp = foundProducts;
+  foundProducts = [];
+  for (const product of tmp) {
+    const exist = payload.products.find(
+      (p) => p._id.toString() === product._id.toString(),
     );
-  });
+    if (exist) foundProducts.push(product);
+  }
+
   if (!foundProducts?.length)
     throw new AppError(status.NOT_FOUND, "Product not found!");
 
-  const totalPrice = foundProducts.reduce(
-    (acc, product) => acc + product.price,
-    0,
-  );
+  const total_price = totalProductPrice(foundProducts, payload.products);
 
   const doc = {
-    ...payload,
-    user: new Types.ObjectId(user.id),
-    totalPrice,
-    products: foundProducts.map((product) => ({ ...product, id: product._id })),
+    user: user_data._id,
+    totalPrice: total_price,
+    products: payload.products.map((product) => ({
+      quantity: product.quantity,
+      id: product._id,
+    })),
   };
 
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const createdDoc = await Order.create([doc], { session });
+    const order_data = await Order.create([doc], { session });
+    if (!order_data)
+      throw new AppError(status.BAD_REQUEST, "Failed to create order!");
 
-    for (const product of foundProducts) {
-      const count =
-        payload.products.find(
-          (item) => String(item._id) === String(product._id),
-        )?.quantity || 0;
-      await Product.findOneAndUpdate(
-        { _id: product._id },
+    // payment
+    const transaction_id = crypto.randomUUID();
+    const payment = await Payment.create(
+      [
         {
-          $inc: { quantity: -count },
+          order: useObjectId(order_data[0]._id),
+          user: user_data._id,
+          transactionId: transaction_id,
+          status: PAYMENT_STATUS.PENDING,
+          amount: total_price,
         },
-        { session },
-      );
-    }
+      ],
+      { session },
+    );
+    if (!payment)
+      throw new AppError(status.NOT_FOUND, "failed to create payment");
+
+    await Order.findByIdAndUpdate(
+      order_data[0]._id,
+      {
+        payment: payment[0]._id,
+      },
+      { session },
+    );
+
+    const sslPayload: ISSLCommerz = {
+      address: user_data?.address || "",
+      email: user_data?.email || "",
+      phoneNumber: user_data?.phone || "",
+      name: user.name || "",
+      amount: total_price,
+      transactionId: transaction_id,
+    };
+
+    const sslPayment = await SSLServices.sslPaymentInit(sslPayload);
 
     await session.commitTransaction();
     await session.endSession();
 
-    return createdDoc[0];
-  } catch {
+    return { paymentUrl: sslPayment.GatewayPageURL };
+  } catch (err) {
+    console.log("err -", err);
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(status.BAD_REQUEST, "Failed to create order!");
@@ -129,14 +185,14 @@ const updateOrderStatusIntoDB = async ({
   id: string;
   user: IJwtPayload;
 }) => {
-  let orderExists;
+  let orderExists: IOrder | null = null;
   if (user.role === "user")
     orderExists = await Order.findOne({ _id: id, user: useObjectId(user.id) });
   else orderExists = await Order.findOne({ _id: id });
 
   if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");
 
-  if (user.role === "user" && orderExists.status === "completed")
+  if (user.role === "user" && orderExists.status === "COMPLETED")
     throw new AppError(status.BAD_REQUEST, "Order is already completed!");
 
   const products = await Product.find({ _id: { $in: orderExists.products } });
@@ -145,19 +201,23 @@ const updateOrderStatusIntoDB = async ({
   try {
     session.startTransaction();
 
-    let data;
+    let updated_order_data: IOrder | null = null;
     if (user.role === "user")
-      data = await Order.updateOne(
+      updated_order_data = await Order.findOneAndUpdate(
         { _id: id },
         { status: orderStatus, cancelReason },
-        { new: true, session },
+        { session },
       );
     else
-      data = await Order.updateOne(
+      updated_order_data = await Order.findOneAndUpdate(
         { _id: id },
         { status: orderStatus, admin: user.id, cancelReason },
-        { new: true, session },
+        { session },
       );
+
+    if (!updated_order_data)
+      throw new AppError(status.NOT_FOUND, "Order not found!");
+
     if (products?.length) {
       for (const product of products) {
         await Product.updateOne(
@@ -171,7 +231,7 @@ const updateOrderStatusIntoDB = async ({
     await session.commitTransaction();
     await session.endSession();
 
-    return data;
+    return updated_order_data;
   } catch {
     await session.abortTransaction();
     await session.endSession();

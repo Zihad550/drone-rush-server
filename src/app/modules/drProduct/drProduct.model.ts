@@ -1,54 +1,54 @@
 import { model, Schema } from "mongoose";
-import IProduct from "./drProduct.interface";
+import type IProduct from "./drProduct.interface";
 
 const productSchema = new Schema<IProduct>(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    img: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: "drCategory",
-      required: true,
-    },
-    reviews: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "drReview",
-      },
-    ],
-    brand: {
-      type: Schema.Types.ObjectId,
-      ref: "drBrand",
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
+	{
+		name: {
+			type: String,
+			required: true,
+		},
+		img: {
+			type: String,
+			required: true,
+		},
+		description: {
+			type: String,
+			required: true,
+		},
+		price: {
+			type: Number,
+			required: true,
+		},
+		category: {
+			type: Schema.Types.ObjectId,
+			ref: "drCategory",
+			required: true,
+		},
+		reviews: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "drReview",
+			},
+		],
+		brand: {
+			type: Schema.Types.ObjectId,
+			ref: "drBrand",
+			required: true,
+		},
+		quantity: {
+			type: Number,
+			required: true,
+		},
+	},
+	{
+		timestamps: true,
+	},
 );
 
 const Product = model<IProduct>(
-  "drProduct",
-  productSchema,
-  "dronerush_products",
+	"drProduct",
+	productSchema,
+	"dronerush_products",
 );
 
 export default Product;

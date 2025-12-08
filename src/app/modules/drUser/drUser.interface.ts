@@ -1,20 +1,23 @@
-import { Model, Types } from "mongoose";
-import { USER_ROLE } from "./drUser.constant";
+import type { Model, Types } from "mongoose";
+import type { USER_ROLE } from "./drUser.constant";
 
 export default interface IUser {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  password: string;
-  passwordChangedAt?: Date;
-  role: TUserRole;
-  status: TUserStatus;
-  createdAt: Date;
-  updatedAt: Date;
+	_id: Types.ObjectId;
+	name: string;
+	email: string;
+	address?: string;
+	phone?: string;
+	password: string;
+	passwordChangedAt?: Date;
+	role: TUserRole;
+	status: TUserStatus;
+	stripeCustomerId?: string;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-export type TUserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 export type TUserStatus = "active" | "blocked";
+export type TUserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 
 // export interface IUserName {
 //   firstName: string;
@@ -23,8 +26,8 @@ export type TUserStatus = "active" | "blocked";
 // }
 
 export interface IUserModelType extends Model<IUser> {
-  isPasswordMatched(
-    plainTextPassword: string,
-    hashedPassword: string,
-  ): Promise<boolean>;
+	isPasswordMatched(
+		plainTextPassword: string,
+		hashedPassword: string,
+	): Promise<boolean>;
 }

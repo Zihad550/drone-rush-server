@@ -1,4 +1,4 @@
-import { TOrderStatus } from "./drOrder.interface";
+import type { TOrderStatus } from "./drOrder.interface";
 
 export const OrderSearchableFields = ["product.name"];
 export const ORDER_STATUS = {
@@ -12,11 +12,12 @@ export const ORDER_STATUS = {
 } as const;
 
 export const OrderStatuses: TOrderStatus[] = [
-  "pending",
-  "processing",
-  "packaged",
-  "delivering",
-  "completed",
-  "user-cancelled",
-  "admin-cancelled",
+  "PENDING",
+  "PROCESSING",
+  "PACKAGED",
+  "DELIVERING",
+  "COMPLETED",
+  "USER-CANCELLED",
+  "FAILED",
+  // "ADMIN-CANCELLED",
 ];

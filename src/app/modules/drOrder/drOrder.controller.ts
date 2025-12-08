@@ -41,6 +41,7 @@ const getOrderById = catchAsync(async (req, res) => {
 
 const createOrder = catchAsync(async (req, res) => {
   const { user } = req;
+  console.log("body -", req.body);
   const data = await OrderServices.createOrderIntoDB(req.body, user);
   sendResponse(res, {
     data,

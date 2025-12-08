@@ -1,17 +1,21 @@
-import { Types } from "mongoose";
-import IProduct from "../drProduct/drProduct.interface";
-import IShippingInfo from "../drShippingInformation/drShippingInformation.interface";
-import IUser from "../drUser/drUser.interface";
+import type { Types } from "mongoose";
+import type IProduct from "../drProduct/drProduct.interface";
+import type IShippingInfo from "../drShippingInformation/drShippingInformation.interface";
+import type IUser from "../drUser/drUser.interface";
+import { IPayment } from "../payment/payment.interface";
 
 export default interface IOrder {
   _id: Types.ObjectId;
   user: Types.ObjectId | IUser;
-  admin?: Types.ObjectId | IUser;
+  payment: Types.ObjectId | IPayment;
   shippingInformation: Types.ObjectId | IShippingInfo;
-  products: Types.ObjectId | IProduct[];
+  products: { id: Types.ObjectId | IProduct; quantity: number }[];
   status: TOrderStatus;
   cancelReason?: string;
   totalPrice: number;
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
+  stripeChargeId?: string;
 }
 
 export interface IOrderProduct {
@@ -24,10 +28,11 @@ export interface ICreateOrder extends Omit<IOrder, "_id" | "products"> {
 }
 
 export type TOrderStatus =
-  | "pending"
-  | "processing"
-  | "packaged"
-  | "delivering"
-  | "user-cancelled"
-  | "admin-cancelled"
-  | "completed";
+  | "PENDING"
+  | "PROCESSING"
+  | "PACKAGED"
+  | "DELIVERING"
+  | "USER-CANCELLED"
+  | "FAILED"
+  | "COMPLETED";
+// | "ADMIN-CANCELLED"
