@@ -1,49 +1,48 @@
 {
-  "name": "drone-rush-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node dist/server.js",
-    "dev": "tsnd --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "prepare": "husky"
-  },
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/cookie-parser": "^1.4.9",
-    "argon2": "^0.43.0",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "firebase-admin": "^13.4.0",
-    "http-status": "^2.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.15.0",
-    "zod": "^4.1.13"
-  },
-  "packageManager": "pnpm@10.11.0",
-  "devDependencies": {
-    "@eslint/js": "^9.27.0",
-    "@types/bcrypt": "^5.0.2",
-    "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.9",
-    "eslint": "^9.27.0",
-    "eslint-config-prettier": "^10.1.5",
-    "globals": "^16.1.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.0.0",
-    "nodemon": "^3.1.10",
-    "prettier": "3.5.3",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.1"
-  }
+	"name": "drone-rush-server",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node dist/server.js",
+		"dev": "tsnd --respawn --transpile-only src/server.ts",
+		"build": "tsc",
+		"lint:format": "biome check --write"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@types/cookie-parser": "^1.4.10",
+		"argon2": "^0.43.1",
+		"axios": "^1.13.2",
+		"cloudinary": "^2.8.0",
+		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.5",
+		"dotenv": "^16.6.1",
+		"ejs": "^3.1.10",
+		"express": "^5.2.1",
+		"firebase-admin": "^13.6.0",
+		"http-status": "^2.1.0",
+		"jsonwebtoken": "^9.0.3",
+		"mongoose": "^8.20.2",
+		"nodemailer": "^7.0.11",
+		"pdfkit": "^0.17.2",
+		"stripe": "^20.0.0",
+		"zod": "^4.1.13"
+	},
+	"packageManager": "pnpm@10.11.0",
+	"devDependencies": {
+		"@biomejs/biome": "2.3.8",
+		"@types/bcrypt": "^5.0.2",
+		"@types/cors": "^2.8.19",
+		"@types/ejs": "^3.1.5",
+		"@types/express": "^5.0.6",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/nodemailer": "^7.0.4",
+		"globals": "^16.5.0",
+		"nodemon": "^3.1.11",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.9.3"
+	}
 }
