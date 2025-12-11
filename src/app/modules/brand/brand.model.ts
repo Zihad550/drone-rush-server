@@ -2,23 +2,23 @@ import { model, Schema } from "mongoose";
 import type IBrand from "./brand.interface";
 
 const brandSchema = new Schema<IBrand>(
-	{
-		name: {
-			type: String,
-			required: true,
-		},
-		description: {
-			type: String,
-			required: true,
-		},
-		logo: {
-			type: String,
-			required: true,
-		},
-	},
-	{
-		timestamps: true,
-	},
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    logo: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
 const Brand = model<IBrand>("Brand", brandSchema);

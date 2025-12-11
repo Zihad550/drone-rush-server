@@ -1,10 +1,10 @@
 import type { Types } from "mongoose";
 
 export default interface IBrand {
-	_id: Types.ObjectId;
-	name: string;
-	logo: string;
-	description: string;
-	createdAt: Date;
-	updatedAt: Date;
+  _id: Types.ObjectId;
+  name: string;
+  logo: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

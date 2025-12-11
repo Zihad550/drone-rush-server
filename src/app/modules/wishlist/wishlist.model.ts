@@ -2,21 +2,21 @@ import { model, Schema } from "mongoose";
 import type IWishlist from "./wishlist.interface";
 
 const wishlistSchema = new Schema<IWishlist>(
-	{
-		user: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
-		drone: {
-			type: Schema.Types.ObjectId,
-			ref: "Drone",
-			required: true,
-		},
-	},
-	{
-		timestamps: true,
-	},
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    drone: {
+      type: Schema.Types.ObjectId,
+      ref: "Drone",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
 // Compound unique index to prevent duplicate user-drone pairs

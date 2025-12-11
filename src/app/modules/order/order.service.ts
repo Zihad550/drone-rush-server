@@ -188,7 +188,10 @@ const updateOrderStatusIntoDB = async ({
 }) => {
   let orderExists: IOrder | null = null;
   if (user.role === "user")
-    orderExists = await Order.findOne({ _id: id, user: useObjectId(user.id) });
+    orderExists = await Order.findOne({
+      _id: id,
+      user: useObjectId(user.id),
+    });
   else orderExists = await Order.findOne({ _id: id });
 
   if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");

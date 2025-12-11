@@ -14,16 +14,16 @@ const app = express();
 
 app.use(express.json());
 app.use(
-	cors({
-		credentials: true,
-		origin: [env.FRONTEND_URL],
-	}),
+  cors({
+    credentials: true,
+    origin: [env.FRONTEND_URL],
+  }),
 );
 app.use(cookieParser());
 
 // application routes
 app.get("/", async (req, res) => {
-	res.send("hello world!");
+  res.send("hello world!");
 });
 
 app.use("/api/v1", router);

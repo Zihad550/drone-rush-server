@@ -6,9 +6,9 @@ const router = Router();
 
 router.post("/add", auth(), WishlistController.addToWishlist);
 router.delete(
-	"/remove/:droneId",
-	auth(),
-	WishlistController.removeFromWishlist,
+  "/remove/:droneId",
+  auth(),
+  WishlistController.removeFromWishlist,
 );
 router.get("/", auth(), WishlistController.getWishlist);
 

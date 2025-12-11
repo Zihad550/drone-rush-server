@@ -6,9 +6,9 @@ import { UserControllers } from "./user.controller";
 const router = Router();
 
 router.post(
-	"/update-to-admin",
-	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-	UserControllers.updateUserToAdmin,
+  "/update-to-admin",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserControllers.updateUserToAdmin,
 );
 
 export const UserRoutes = router;

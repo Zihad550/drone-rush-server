@@ -6,14 +6,14 @@ const router = Router();
 
 router.post("/add", auth(), CartController.addToCart);
 router.post(
-	"/add-and-remove-from-wishlist",
-	auth(),
-	CartController.addToCartAndRemoveFromWishlist,
+  "/add-and-remove-from-wishlist",
+  auth(),
+  CartController.addToCartAndRemoveFromWishlist,
 );
 router.post(
-	"/move-to-wishlist",
-	auth(),
-	CartController.addToWishlistAndRemoveFromCart,
+  "/move-to-wishlist",
+  auth(),
+  CartController.addToWishlistAndRemoveFromCart,
 );
 router.put("/update/:droneId", auth(), CartController.updateCartQuantity);
 router.delete("/remove/:droneId", auth(), CartController.removeFromCart);

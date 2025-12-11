@@ -4,49 +4,49 @@ import type IOrder from "./order.interface";
 import type { IOrderDrone } from "./order.interface";
 
 const orderDroneSchema = new Schema<IOrderDrone>({
-	id: {
-		type: Schema.Types.ObjectId,
-		ref: "Drone",
-	},
-	quantity: {
-		type: Number,
-		min: 1,
-		required: true,
-	},
+  id: {
+    type: Schema.Types.ObjectId,
+    ref: "Drone",
+  },
+  quantity: {
+    type: Number,
+    min: 1,
+    required: true,
+  },
 });
 
 const orderSchema = new Schema<IOrder>(
-	{
-		user: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
-		payment: {
-			type: Schema.Types.ObjectId,
-			ref: "Payment",
-		},
-		shippingInformation: {
-			type: Schema.Types.ObjectId,
-			ref: "ShippingInformation",
-		},
-		drones: [orderDroneSchema],
-		status: {
-			type: String,
-			enum: OrderStatuses,
-			default: "PROCESSING",
-		},
-		cancelReason: {
-			type: String,
-		},
-		totalPrice: {
-			type: Number,
-			required: true,
-		},
-	},
-	{
-		timestamps: true,
-	},
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    payment: {
+      type: Schema.Types.ObjectId,
+      ref: "Payment",
+    },
+    shippingInformation: {
+      type: Schema.Types.ObjectId,
+      ref: "ShippingInformation",
+    },
+    drones: [orderDroneSchema],
+    status: {
+      type: String,
+      enum: OrderStatuses,
+      default: "PROCESSING",
+    },
+    cancelReason: {
+      type: String,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
 const Order = model<IOrder>("Order", orderSchema);

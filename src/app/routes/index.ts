@@ -12,50 +12,50 @@ import { WishlistRoutes } from "../modules/wishlist/wishlist.route";
 
 const router = Router();
 const moduleRoutes = [
-	{
-		path: "/auth",
-		route: AuthRoutes,
-	},
-	{
-		path: "/drones",
-		route: DroneRoutes,
-	},
-	{
-		path: "/orders",
-		route: OrderRoutes,
-	},
-	{
-		path: "/categories",
-		route: CategoryRoutes,
-	},
-	{
-		path: "/brands",
-		route: BrandRoutes,
-	},
-	{
-		path: "/user",
-		route: UserRoutes,
-	},
-	{
-		path: "/shipping-information",
-		route: ShippingInformationRoutes,
-	},
-	{
-		path: "/wishlist",
-		route: WishlistRoutes,
-	},
-	{
-		path: "/cart",
-		route: CartRoutes,
-	},
-	{
-		path: "/payment",
-		route: PaymentRoutes,
-	},
+  {
+    path: "/auth",
+    route: AuthRoutes,
+  },
+  {
+    path: "/drones",
+    route: DroneRoutes,
+  },
+  {
+    path: "/orders",
+    route: OrderRoutes,
+  },
+  {
+    path: "/categories",
+    route: CategoryRoutes,
+  },
+  {
+    path: "/brands",
+    route: BrandRoutes,
+  },
+  {
+    path: "/user",
+    route: UserRoutes,
+  },
+  {
+    path: "/shipping-information",
+    route: ShippingInformationRoutes,
+  },
+  {
+    path: "/wishlist",
+    route: WishlistRoutes,
+  },
+  {
+    path: "/cart",
+    route: CartRoutes,
+  },
+  {
+    path: "/payment",
+    route: PaymentRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => {
-	router.use(route.path, route.route);
+  router.use(route.path, route.route);
 });
 
 export default router;
