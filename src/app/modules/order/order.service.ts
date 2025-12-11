@@ -5,12 +5,12 @@ import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import type { IJwtPayload } from "../../interface";
 import { useObjectId } from "../../utils/useObjectId";
+import type IDrone from "../drone/drone.interface";
+import Drone from "../drone/drone.model";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
 import Payment from "../payment/payment.model";
 import type { ISSLCommerz } from "../payment/sslCommerz.interface";
 import { SSLServices } from "../payment/sslCommerz.service";
-import type IProduct from "../product/product.interface";
-import Product from "../product/product.model";
 import User from "../user/user.model";
 import { ORDER_STATUS, OrderSearchableFields } from "./order.constant";
 import type IOrder from "./order.interface";
@@ -21,7 +21,7 @@ const getOrdersFromDB = async (query: Record<string, unknown>) => {
 	const ordersQuery = new QueryBuilder(
 		Order.find()
 			.populate("user", "name")
-			.populate("products.id", "price name img"),
+			.populate("drones.id", "price name img"),
 		query,
 	)
 		.search(OrderSearchableFields)
@@ -51,7 +51,7 @@ const getUserOrdersFromDB = async ({
 			status: {
 				$nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
 			},
-		}).populate("products.id"),
+		}).populate("drones.id"),
 		query,
 	)
 		.search(OrderSearchableFields)
@@ -69,20 +69,20 @@ const getUserOrdersFromDB = async ({
 };
 
 const getOrderByIdFromDB = async (id: string) => {
-	return await Order.findById(id).populate("products.id");
+	return await Order.findById(id).populate("drones.id");
 };
 
-const totalProductPrice = (
-	products: IProduct[],
-	cart_products: { _id: string; quantity: number }[],
+const totalDronePrice = (
+	drones: IDrone[],
+	cart_drones: { _id: string; quantity: number }[],
 ) => {
 	let total_price = 0;
 
-	products.forEach((product) => {
+	drones.forEach((drone) => {
 		const quantity =
-			cart_products.find((item) => String(item._id) === String(product._id))
+			cart_drones.find((item) => String(item._id) === String(drone._id))
 				?.quantity || 0;
-		total_price += product.price * quantity;
+		total_price += drone.price * quantity;
 	});
 
 	return total_price;
@@ -92,32 +92,32 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
 	const user_data = await User.findById(user.id);
 	if (!user_data) throw new AppError(status.NOT_FOUND, "User not found!");
 
-	const productIds = payload.products.map((item) => useObjectId(item._id));
-	let foundProducts = await Product.find(
-		{ _id: { $in: productIds }, quantity: { $gte: 1 } },
+	const droneIds = payload.drones.map((item) => useObjectId(item._id));
+	let foundDrones = await Drone.find(
+		{ _id: { $in: droneIds }, quantity: { $gte: 1 } },
 		{ price: 1, quantity: 1 },
 	);
 
-	const tmp = foundProducts;
-	foundProducts = [];
-	for (const product of tmp) {
-		const exist = payload.products.find(
-			(p) => p._id.toString() === product._id.toString(),
+	const tmp = foundDrones;
+	foundDrones = [];
+	for (const drone of tmp) {
+		const exist = payload.drones.find(
+			(d) => d._id.toString() === drone._id.toString(),
 		);
-		if (exist) foundProducts.push(product);
+		if (exist) foundDrones.push(drone);
 	}
 
-	if (!foundProducts?.length)
-		throw new AppError(status.NOT_FOUND, "Product not found!");
+	if (!foundDrones?.length)
+		throw new AppError(status.NOT_FOUND, "Drone not found!");
 
-	const total_price = totalProductPrice(foundProducts, payload.products);
+	const total_price = totalDronePrice(foundDrones, payload.drones);
 
 	const doc = {
 		user: user_data._id,
 		totalPrice: total_price,
-		products: payload.products.map((product) => ({
-			quantity: product.quantity,
-			id: product._id,
+		drones: payload.drones.map((drone) => ({
+			quantity: drone.quantity,
+			id: drone._id,
 		})),
 	};
 
@@ -195,7 +195,7 @@ const updateOrderStatusIntoDB = async ({
 	if (user.role === "user" && orderExists.status === "COMPLETED")
 		throw new AppError(status.BAD_REQUEST, "Order is already completed!");
 
-	const products = await Product.find({ _id: { $in: orderExists.products } });
+	const drones = await Drone.find({ _id: { $in: orderExists.drones } });
 
 	const session = await mongoose.startSession();
 	try {
@@ -218,11 +218,11 @@ const updateOrderStatusIntoDB = async ({
 		if (!updated_order_data)
 			throw new AppError(status.NOT_FOUND, "Order not found!");
 
-		if (products?.length) {
-			for (const product of products) {
-				await Product.updateOne(
-					{ _id: product._id },
-					{ $inc: { quantity: +product.quantity } },
+		if (drones?.length) {
+			for (const drone of drones) {
+				await Drone.updateOne(
+					{ _id: drone._id },
+					{ $inc: { quantity: +drone.quantity } },
 					{ session },
 				);
 			}

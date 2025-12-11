@@ -1,10 +1,11 @@
 import type { Types } from "mongoose";
-import type IProduct from "../product/product.interface";
+import type IDrone from "../drone/drone.interface";
 import type IUser from "../user/user.interface";
 
 export default interface IWishlist {
 	_id: Types.ObjectId;
 	user: Types.ObjectId | IUser;
-	product: Types.ObjectId | IProduct;
-	addedAt: Date;
+	drone: Types.ObjectId | IDrone;
+	createdAt: Date;
+	updatedAt: Date;
 }

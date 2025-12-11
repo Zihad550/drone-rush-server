@@ -12,9 +12,5 @@ const categorySchema = new Schema<ICategory>(
 		timestamps: true,
 	},
 );
-const Category = model<ICategory>(
-	"drCategory",
-	categorySchema,
-	"dronerush_categories",
-);
+const Category = model<ICategory>("Category", categorySchema);
 export default Category;

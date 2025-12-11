@@ -3,9 +3,9 @@ import { AuthRoutes } from "../modules/auth/auth.route";
 import { BrandRoutes } from "../modules/brand/brand.route";
 import { CartRoutes } from "../modules/cart/cart.route";
 import { CategoryRoutes } from "../modules/category/category.route";
+import { DroneRoutes } from "../modules/drone/drone.route";
 import { OrderRoutes } from "../modules/order/order.route";
 import { PaymentRoutes } from "../modules/payment/payment.route";
-import { ProductRoutes } from "../modules/product/product.route";
 import { ShippingInformationRoutes } from "../modules/shippingInformation/shippingInformation.route";
 import { UserRoutes } from "../modules/user/user.route";
 import { WishlistRoutes } from "../modules/wishlist/wishlist.route";
@@ -17,8 +17,8 @@ const moduleRoutes = [
 		route: AuthRoutes,
 	},
 	{
-		path: "/products",
-		route: ProductRoutes,
+		path: "/drones",
+		route: DroneRoutes,
 	},
 	{
 		path: "/orders",

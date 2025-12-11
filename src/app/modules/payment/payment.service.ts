@@ -5,14 +5,14 @@ import { generatePdf, type IInvoiceData } from "../../utils/invoice";
 import { sendEmail } from "../../utils/sendEmail";
 import { useObjectId } from "../../utils/useObjectId";
 import Cart from "../cart/cart.model";
+import Drone from "../drone/drone.model";
 import Order from "../order/order.model";
-import Product from "../product/product.model";
 import type IUser from "../user/user.interface";
 import { PAYMENT_STATUS } from "./payment.interface";
 import Payment from "./payment.model";
 
 const successPayment = async (query: Record<string, string>) => {
-	const session = await Product.startSession();
+	const session = await Drone.startSession();
 	session.startTransaction();
 
 	try {
@@ -58,11 +58,11 @@ const successPayment = async (query: Record<string, string>) => {
 		// delete cart
 		await Cart.deleteMany({ user: useObjectId(user._id) });
 
-		for (const product of order.products) {
-			await Product.findOneAndUpdate(
-				{ _id: product.id },
+		for (const drone of order.drones) {
+			await Drone.findOneAndUpdate(
+				{ _id: drone.id },
 				{
-					$inc: { quantity: -product.quantity },
+					$inc: { quantity: -drone.quantity },
 				},
 				{ session },
 			);
@@ -94,7 +94,7 @@ const successPayment = async (query: Record<string, string>) => {
 };
 
 const failPayment = async (query: Record<string, string>) => {
-	const session = await Product.startSession();
+	const session = await Drone.startSession();
 	session.startTransaction();
 
 	try {
@@ -122,7 +122,7 @@ const failPayment = async (query: Record<string, string>) => {
 };
 
 const cancelPayment = async (query: Record<string, string>) => {
-	const session = await Product.startSession();
+	const session = await Drone.startSession();
 	session.startTransaction();
 
 	try {

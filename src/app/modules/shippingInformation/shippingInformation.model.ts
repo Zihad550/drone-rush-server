@@ -6,7 +6,7 @@ const shippingInformationSchema = new Schema<IShippingInfo>(
 	{
 		user: {
 			type: Schema.Types.ObjectId,
-			ref: "drUser",
+			ref: "User",
 			required: true,
 		},
 		street: {
@@ -44,9 +44,9 @@ const shippingInformationSchema = new Schema<IShippingInfo>(
 );
 
 const ShippingInformation = model<IShippingInfo>(
-	"drShippingInformation",
+	"ShippingInformation",
 	shippingInformationSchema,
-	"dronerush_shipping_informations",
+	"shipping_information",
 );
 
 export default ShippingInformation;

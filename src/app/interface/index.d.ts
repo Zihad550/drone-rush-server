@@ -1,5 +1,5 @@
 import { JwtPayload } from "jsonwebtoken";
-import { TUserRole } from "../modules/drUser/drUser.interface";
+import { TUserRole } from "../modules/user/user.interface";
 
 export interface IJwtPayload extends JwtPayload {
 	// user: {

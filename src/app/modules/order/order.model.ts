@@ -1,12 +1,12 @@
 import { model, Schema } from "mongoose";
 import { OrderStatuses } from "./order.constant";
 import type IOrder from "./order.interface";
-import type { IOrderProduct } from "./order.interface";
+import type { IOrderDrone } from "./order.interface";
 
-const orderProductSchema = new Schema<IOrderProduct>({
+const orderDroneSchema = new Schema<IOrderDrone>({
 	id: {
 		type: Schema.Types.ObjectId,
-		ref: "drProduct",
+		ref: "Drone",
 	},
 	quantity: {
 		type: Number,
@@ -19,18 +19,18 @@ const orderSchema = new Schema<IOrder>(
 	{
 		user: {
 			type: Schema.Types.ObjectId,
-			ref: "drUser",
+			ref: "User",
 			required: true,
 		},
 		payment: {
 			type: Schema.Types.ObjectId,
-			ref: "drPayment",
+			ref: "Payment",
 		},
 		shippingInformation: {
 			type: Schema.Types.ObjectId,
-			ref: "drShippingInformation",
+			ref: "ShippingInformation",
 		},
-		products: [orderProductSchema],
+		drones: [orderDroneSchema],
 		status: {
 			type: String,
 			enum: OrderStatuses,
@@ -49,5 +49,5 @@ const orderSchema = new Schema<IOrder>(
 	},
 );
 
-const Order = model<IOrder>("drOrder", orderSchema, "dronerush_orders");
+const Order = model<IOrder>("Order", orderSchema);
 export default Order;

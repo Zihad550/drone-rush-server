@@ -5,12 +5,12 @@ const paymentSchema = new Schema<IPayment>(
 	{
 		order: {
 			type: Schema.Types.ObjectId,
-			ref: "drOrder",
+			ref: "Order",
 			unique: true,
 		},
 		user: {
 			type: Schema.Types.ObjectId,
-			ref: "drUser",
+			ref: "User",
 			required: true,
 		},
 		transactionId: {

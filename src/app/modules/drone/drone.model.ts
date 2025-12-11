@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
-import type IProduct from "./product.interface";
+import type IDrone from "./drone.interface";
 
-const productSchema = new Schema<IProduct>(
+const droneSchema = new Schema<IDrone>(
 	{
 		name: {
 			type: String,
@@ -21,18 +21,18 @@ const productSchema = new Schema<IProduct>(
 		},
 		category: {
 			type: Schema.Types.ObjectId,
-			ref: "drCategory",
+			ref: "Category",
 			required: true,
 		},
 		reviews: [
 			{
 				type: Schema.Types.ObjectId,
-				ref: "drReview",
+				ref: "Review",
 			},
 		],
 		brand: {
 			type: Schema.Types.ObjectId,
-			ref: "drBrand",
+			ref: "Brand",
 			required: true,
 		},
 		quantity: {
@@ -45,10 +45,6 @@ const productSchema = new Schema<IProduct>(
 	},
 );
 
-const Product = model<IProduct>(
-	"drProduct",
-	productSchema,
-	"dronerush_products",
-);
+const Drone = model<IDrone>("Drone", droneSchema);
 
-export default Product;
+export default Drone;

@@ -1,36 +1,36 @@
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { useObjectId } from "../../utils/useObjectId";
-import Product from "../product/product.model";
+import Drone from "../drone/drone.model";
 import Wishlist from "./wishlist.model";
 
-const addToWishlist = async (userId: string, productId: string) => {
-	// Check if product exists
-	const product = await Product.findById(productId);
-	if (!product) {
-		throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+const addToWishlist = async (userId: string, droneId: string) => {
+	// Check if drone exists
+	const drone = await Drone.findById(droneId);
+	if (!drone) {
+		throw new AppError(httpStatus.NOT_FOUND, "Drone not found");
 	}
 
 	// Check if already exists
 	const existing = await Wishlist.findOne({
 		user: useObjectId(userId),
-		product: useObjectId(productId),
+		drone: useObjectId(droneId),
 	});
 	if (existing) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Product already in wishlist");
+		throw new AppError(httpStatus.BAD_REQUEST, "Drone already in wishlist");
 	}
 
 	const wishlistItem = await Wishlist.create({
 		user: userId,
-		product: productId,
+		drone: droneId,
 	});
 	return wishlistItem;
 };
 
-const removeFromWishlist = async (userId: string, productId: string) => {
+const removeFromWishlist = async (userId: string, droneId: string) => {
 	const result = await Wishlist.findOneAndDelete({
 		user: useObjectId(userId),
-		product: useObjectId(productId),
+		drone: useObjectId(droneId),
 	});
 	if (!result) {
 		throw new AppError(httpStatus.NOT_FOUND, "Wishlist item not found");
@@ -40,7 +40,7 @@ const removeFromWishlist = async (userId: string, productId: string) => {
 
 const getUserWishlist = async (userId: string) => {
 	const wishlist = await Wishlist.find({ user: useObjectId(userId) })
-		.populate("product")
+		.populate("drone")
 		.sort({ createdAt: -1 });
 	return wishlist;
 };

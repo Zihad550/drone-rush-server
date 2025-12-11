@@ -8,46 +8,46 @@ import { WishlistService } from "./wishlist.service";
 
 const addWishlistValidation = z.object({
 	body: z.object({
-		productId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-			message: "Invalid product ID",
+		droneId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+			message: "Invalid drone ID",
 		}),
 	}),
 });
 
 const removeWishlistValidation = z.object({
 	params: z.object({
-		productId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-			message: "Invalid product ID",
+		droneId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+			message: "Invalid drone ID",
 		}),
 	}),
 });
 
 const addToWishlist = catchAsync(async (req: Request, res: Response) => {
 	const validatedData = addWishlistValidation.parse(req);
-	const { productId } = validatedData.body;
+	const { droneId } = validatedData.body;
 	const userId = req?.user?.id;
 
-	const result = await WishlistService.addToWishlist(userId, productId);
+	const result = await WishlistService.addToWishlist(userId, droneId);
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
 		success: true,
-		message: "Product added to wishlist successfully",
+		message: "Drone added to wishlist successfully",
 		data: result,
 	});
 });
 
 const removeFromWishlist = catchAsync(async (req: Request, res: Response) => {
 	const validatedData = removeWishlistValidation.parse(req);
-	const { productId } = validatedData.params;
+	const { droneId } = validatedData.params;
 	const userId = req.user.id;
 
-	const result = await WishlistService.removeFromWishlist(userId, productId);
+	const result = await WishlistService.removeFromWishlist(userId, droneId);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
-		message: "Product removed from wishlist successfully",
+		message: "Drone removed from wishlist successfully",
 		data: result,
 	});
 });

@@ -5,22 +5,22 @@ const wishlistSchema = new Schema<IWishlist>(
 	{
 		user: {
 			type: Schema.Types.ObjectId,
-			ref: "drUser",
+			ref: "User",
 			required: true,
 		},
-		product: {
+		drone: {
 			type: Schema.Types.ObjectId,
-			ref: "drProduct",
+			ref: "Drone",
 			required: true,
 		},
 	},
 	{
-		timestamps: { createdAt: "addedAt", updatedAt: false },
+		timestamps: true,
 	},
 );
 
-// Compound unique index to prevent duplicate user-product pairs
-wishlistSchema.index({ user: 1, product: 1 }, { unique: true });
+// Compound unique index to prevent duplicate user-drone pairs
+wishlistSchema.index({ user: 1, drone: 1 }, { unique: true });
 
 const Wishlist = model<IWishlist>("Wishlist", wishlistSchema);
 

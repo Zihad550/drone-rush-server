@@ -70,9 +70,5 @@ userSchema.statics.isPasswordMatched = async (
 	hashedPassword: string,
 ) => await argon2.verify(hashedPassword, plainTextPassword);
 
-const User = model<IUser, IUserModelType>(
-	"drUser",
-	userSchema,
-	"dronerush_users",
-);
+const User = model<IUser, IUserModelType>("User", userSchema);
 export default User;

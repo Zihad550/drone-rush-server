@@ -1,21 +1,21 @@
 import { Router } from "express";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.constant";
-import { ProductControllers } from "./product.controller";
+import { DroneControllers } from "./drone.controller";
 
 const router = Router();
 
-router.get("/", auth(), ProductControllers.getProducts);
+router.get("/", DroneControllers.getDrones);
 router.post(
 	"/",
 	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-	ProductControllers.createProduct,
+	DroneControllers.createDrone,
 );
-router.get("/:id", ProductControllers.getProductById);
+router.get("/:id", DroneControllers.getDroneById);
 router.delete(
 	"/:id",
 	auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-	ProductControllers.deleteProduct,
+	DroneControllers.deleteDrone,
 );
 
-export const ProductRoutes = router;
+export const DroneRoutes = router;

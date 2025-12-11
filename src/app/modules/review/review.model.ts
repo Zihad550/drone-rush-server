@@ -5,7 +5,7 @@ const reviewSchema = new Schema<IReview>(
 	{
 		user: {
 			type: Schema.Types.ObjectId,
-			ref: "drUser",
+			ref: "User",
 			required: true,
 		},
 		comment: {
@@ -24,6 +24,6 @@ const reviewSchema = new Schema<IReview>(
 	},
 );
 
-const Review = model<IReview>("drReview", reviewSchema, "dronerush_reviews");
+const Review = model<IReview>("Review", reviewSchema);
 
 export default Review;

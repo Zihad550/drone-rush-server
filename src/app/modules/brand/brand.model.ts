@@ -21,6 +21,6 @@ const brandSchema = new Schema<IBrand>(
 	},
 );
 
-const Brand = model<IBrand>("drBrand", brandSchema, "dronerush_brands");
+const Brand = model<IBrand>("Brand", brandSchema);
 
 export default Brand;
