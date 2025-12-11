@@ -18,231 +18,232 @@ import type { ICreateOrder, TOrderStatus } from "./order.interface";
 import Order from "./order.model";
 
 const getOrdersFromDB = async (query: Record<string, unknown>) => {
-	const ordersQuery = new QueryBuilder(
-		Order.find()
-			.populate("user", "name")
-			.populate("drones.id", "price name img"),
-		query,
-	)
-		.search(OrderSearchableFields)
-		.filter()
-		.sort()
-		.paginate()
-		.fields();
+  const ordersQuery = new QueryBuilder(
+    Order.find()
+      .populate("user", "name")
+      .populate("drones.id", "price name img"),
+    query,
+  )
+    .search(OrderSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
 
-	const data = await ordersQuery.modelQuery;
-	const meta = await ordersQuery.countTotal();
-	return {
-		data,
-		meta,
-	};
+  const data = await ordersQuery.modelQuery;
+  const meta = await ordersQuery.countTotal();
+  return {
+    data,
+    meta,
+  };
 };
 
 const getUserOrdersFromDB = async ({
-	userId,
-	query,
+  userId,
+  query,
 }: {
-	userId: string;
-	query: Record<string, unknown>;
+  userId: string;
+  query: Record<string, unknown>;
 }) => {
-	const ordersQuery = new QueryBuilder(
-		Order.find({
-			user: useObjectId(userId),
-			status: {
-				$nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
-			},
-		}).populate("drones.id"),
-		query,
-	)
-		.search(OrderSearchableFields)
-		.filter()
-		.sort()
-		.paginate()
-		.fields();
+  const ordersQuery = new QueryBuilder(
+    Order.find({
+      user: useObjectId(userId),
+      status: {
+        $nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
+      },
+    }).populate("drones.id"),
+    query,
+  )
+    .search(OrderSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
 
-	const data = await ordersQuery.modelQuery;
-	const meta = await ordersQuery.countTotal();
-	return {
-		data,
-		meta,
-	};
+  const data = await ordersQuery.modelQuery;
+  const meta = await ordersQuery.countTotal();
+  return {
+    data,
+    meta,
+  };
 };
 
 const getOrderByIdFromDB = async (id: string) => {
-	return await Order.findById(id).populate("drones.id");
+  return await Order.findById(id).populate("drones.id");
 };
 
 const totalDronePrice = (
-	drones: IDrone[],
-	cart_drones: { _id: string; quantity: number }[],
+  drones: IDrone[],
+  cart_drones: { _id: string; quantity: number }[],
 ) => {
-	let total_price = 0;
+  let total_price = 0;
 
-	drones.forEach((drone) => {
-		const quantity =
-			cart_drones.find((item) => String(item._id) === String(drone._id))
-				?.quantity || 0;
-		total_price += drone.price * quantity;
-	});
+  drones.forEach((drone) => {
+    const quantity =
+      cart_drones.find((item) => String(item._id) === String(drone._id))
+        ?.quantity || 0;
+    total_price += drone.price * quantity;
+  });
 
-	return total_price;
+  return total_price;
 };
 
 const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
-	const user_data = await User.findById(user.id);
-	if (!user_data) throw new AppError(status.NOT_FOUND, "User not found!");
+  const user_data = await User.findById(user.id);
+  if (!user_data) throw new AppError(status.NOT_FOUND, "User not found!");
 
-	const droneIds = payload.drones.map((item) => useObjectId(item._id));
-	let foundDrones = await Drone.find(
-		{ _id: { $in: droneIds }, quantity: { $gte: 1 } },
-		{ price: 1, quantity: 1 },
-	);
+  const droneIds = payload.drones.map((item) => useObjectId(item._id));
+  let foundDrones = await Drone.find(
+    { _id: { $in: droneIds }, quantity: { $gte: 1 } },
+    { price: 1, quantity: 1 },
+  );
 
-	const tmp = foundDrones;
-	foundDrones = [];
-	for (const drone of tmp) {
-		const exist = payload.drones.find(
-			(d) => d._id.toString() === drone._id.toString(),
-		);
-		if (exist) foundDrones.push(drone);
-	}
+  const tmp = foundDrones;
+  foundDrones = [];
+  for (const drone of tmp) {
+    const exist = payload.drones.find(
+      (d) => d._id.toString() === drone._id.toString(),
+    );
+    if (exist) foundDrones.push(drone);
+  }
 
-	if (!foundDrones?.length)
-		throw new AppError(status.NOT_FOUND, "Drone not found!");
+  if (!foundDrones?.length)
+    throw new AppError(status.NOT_FOUND, "Drone not found!");
 
-	const total_price = totalDronePrice(foundDrones, payload.drones);
+  const total_price = totalDronePrice(foundDrones, payload.drones);
 
-	const doc = {
-		user: user_data._id,
-		totalPrice: total_price,
-		drones: payload.drones.map((drone) => ({
-			quantity: drone.quantity,
-			id: drone._id,
-		})),
-	};
+  const doc = {
+    user: user_data._id,
+    totalPrice: total_price,
+    drones: payload.drones.map((drone) => ({
+      quantity: drone.quantity,
+      id: drone._id,
+    })),
+    shippingInformation: payload.shippingInformation,
+  };
 
-	const session = await mongoose.startSession();
-	try {
-		session.startTransaction();
-		const order_data = await Order.create([doc], { session });
-		if (!order_data)
-			throw new AppError(status.BAD_REQUEST, "Failed to create order!");
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const order_data = await Order.create([doc], { session });
+    if (!order_data)
+      throw new AppError(status.BAD_REQUEST, "Failed to create order!");
 
-		// payment
-		const transaction_id = crypto.randomUUID();
-		const payment = await Payment.create(
-			[
-				{
-					order: useObjectId(order_data[0]._id),
-					user: user_data._id,
-					transactionId: transaction_id,
-					status: PAYMENT_STATUS.PENDING,
-					amount: total_price,
-				},
-			],
-			{ session },
-		);
-		if (!payment)
-			throw new AppError(status.NOT_FOUND, "failed to create payment");
+    // payment
+    const transaction_id = crypto.randomUUID();
+    const payment = await Payment.create(
+      [
+        {
+          order: useObjectId(order_data[0]._id),
+          user: user_data._id,
+          transactionId: transaction_id,
+          status: PAYMENT_STATUS.PENDING,
+          amount: total_price,
+        },
+      ],
+      { session },
+    );
+    if (!payment)
+      throw new AppError(status.NOT_FOUND, "failed to create payment");
 
-		await Order.findByIdAndUpdate(
-			order_data[0]._id,
-			{
-				payment: payment[0]._id,
-			},
-			{ session },
-		);
+    await Order.findByIdAndUpdate(
+      order_data[0]._id,
+      {
+        payment: payment[0]._id,
+      },
+      { session },
+    );
 
-		const sslPayload: ISSLCommerz = {
-			address: user_data?.address || "",
-			email: user_data?.email || "",
-			phoneNumber: user_data?.phone || "",
-			name: user.name || "",
-			amount: total_price,
-			transactionId: transaction_id,
-		};
+    const sslPayload: ISSLCommerz = {
+      address: user_data?.address || "",
+      email: user_data?.email || "",
+      phoneNumber: user_data?.phone || "",
+      name: user.name || "",
+      amount: total_price,
+      transactionId: transaction_id,
+    };
 
-		const sslPayment = await SSLServices.sslPaymentInit(sslPayload);
+    const sslPayment = await SSLServices.sslPaymentInit(sslPayload);
 
-		await session.commitTransaction();
-		await session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
 
-		return { paymentUrl: sslPayment.GatewayPageURL };
-	} catch (err) {
-		console.log("err -", err);
-		await session.abortTransaction();
-		await session.endSession();
-		throw new AppError(status.BAD_REQUEST, "Failed to create order!");
-	}
+    return { paymentUrl: sslPayment.GatewayPageURL };
+  } catch (err) {
+    console.log("err -", err);
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(status.BAD_REQUEST, "Failed to create order!");
+  }
 };
 
 const updateOrderStatusIntoDB = async ({
-	payload: { status: orderStatus, cancelReason },
-	id,
-	user,
+  payload: { status: orderStatus, cancelReason },
+  id,
+  user,
 }: {
-	payload: { status: TOrderStatus; cancelReason?: string };
-	id: string;
-	user: IJwtPayload;
+  payload: { status: TOrderStatus; cancelReason?: string };
+  id: string;
+  user: IJwtPayload;
 }) => {
-	let orderExists: IOrder | null = null;
-	if (user.role === "user")
-		orderExists = await Order.findOne({ _id: id, user: useObjectId(user.id) });
-	else orderExists = await Order.findOne({ _id: id });
+  let orderExists: IOrder | null = null;
+  if (user.role === "user")
+    orderExists = await Order.findOne({ _id: id, user: useObjectId(user.id) });
+  else orderExists = await Order.findOne({ _id: id });
 
-	if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");
+  if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");
 
-	if (user.role === "user" && orderExists.status === "COMPLETED")
-		throw new AppError(status.BAD_REQUEST, "Order is already completed!");
+  if (user.role === "user" && orderExists.status === "COMPLETED")
+    throw new AppError(status.BAD_REQUEST, "Order is already completed!");
 
-	const drones = await Drone.find({ _id: { $in: orderExists.drones } });
+  const drones = await Drone.find({ _id: { $in: orderExists.drones } });
 
-	const session = await mongoose.startSession();
-	try {
-		session.startTransaction();
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-		let updated_order_data: IOrder | null = null;
-		if (user.role === "user")
-			updated_order_data = await Order.findOneAndUpdate(
-				{ _id: id },
-				{ status: orderStatus, cancelReason },
-				{ session },
-			);
-		else
-			updated_order_data = await Order.findOneAndUpdate(
-				{ _id: id },
-				{ status: orderStatus, admin: user.id, cancelReason },
-				{ session },
-			);
+    let updated_order_data: IOrder | null = null;
+    if (user.role === "user")
+      updated_order_data = await Order.findOneAndUpdate(
+        { _id: id },
+        { status: orderStatus, cancelReason },
+        { session },
+      );
+    else
+      updated_order_data = await Order.findOneAndUpdate(
+        { _id: id },
+        { status: orderStatus, admin: user.id, cancelReason },
+        { session },
+      );
 
-		if (!updated_order_data)
-			throw new AppError(status.NOT_FOUND, "Order not found!");
+    if (!updated_order_data)
+      throw new AppError(status.NOT_FOUND, "Order not found!");
 
-		if (drones?.length) {
-			for (const drone of drones) {
-				await Drone.updateOne(
-					{ _id: drone._id },
-					{ $inc: { quantity: +drone.quantity } },
-					{ session },
-				);
-			}
-		}
+    if (drones?.length) {
+      for (const drone of drones) {
+        await Drone.updateOne(
+          { _id: drone._id },
+          { $inc: { quantity: +drone.quantity } },
+          { session },
+        );
+      }
+    }
 
-		await session.commitTransaction();
-		await session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
 
-		return updated_order_data;
-	} catch {
-		await session.abortTransaction();
-		await session.endSession();
-		throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to update order!");
-	}
+    return updated_order_data;
+  } catch {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to update order!");
+  }
 };
 
 export const OrderServices = {
-	getOrdersFromDB,
-	getUserOrdersFromDB,
-	getOrderByIdFromDB,
-	createOrderIntoDB,
-	updateOrderStatusIntoDB,
+  getOrdersFromDB,
+  getUserOrdersFromDB,
+  getOrderByIdFromDB,
+  createOrderIntoDB,
+  updateOrderStatusIntoDB,
 };
