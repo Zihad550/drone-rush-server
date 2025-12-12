@@ -51,7 +51,10 @@ const getUserOrdersFromDB = async ({
       // status: {
       //   $nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
       // },
-    }).populate("drones.id").populate("reviews.drone", "name img").populate("reviews.review"),
+    })
+      .populate("drones.id")
+      .populate("reviews.drone", "name img")
+      .populate("reviews.review"),
     query,
   )
     .search(OrderSearchableFields)

@@ -1,1 +1,1 @@
-export const DroneSearchableFields = ["name", "brand", "category"];
+export const DroneSearchableFields = ["name", "brand", "category", "price"];

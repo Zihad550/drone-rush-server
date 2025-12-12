@@ -1,10 +1,8 @@
 import status from "http-status";
-import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import { useObjectId } from "../../utils/useObjectId";
 import Cart from "../cart/cart.model";
 import Wishlist from "../wishlist/wishlist.model";
-import { DroneSearchableFields } from "./drone.constant";
 import type IDrone from "./drone.interface";
 import Drone from "./drone.model";
 
@@ -12,17 +10,163 @@ const getDronesFromDB = async (
   query: Record<string, unknown>,
   userId?: string,
 ) => {
-  const dronesQuery = new QueryBuilder(
-    Drone.find().populate("brand").populate("category"),
-    query,
-  )
-    .search(DroneSearchableFields)
-    .filter()
-    .sort()
-    .paginate()
-    .fields();
-  const data = await dronesQuery.modelQuery;
-  const meta = await dronesQuery.countTotal();
+  // Parse comma-separated strings into arrays
+  if (typeof query.category === "string") {
+    query.category = query.category.split(",");
+  }
+  if (typeof query.brand === "string") {
+    query.brand = query.brand.split(",");
+  }
+  // Handle price filtering
+  if (query.minPrice || query.maxPrice) {
+    const priceFilter: any = {};
+    if (query.minPrice) priceFilter.$gte = Number(query.minPrice);
+    if (query.maxPrice) priceFilter.$lte = Number(query.maxPrice);
+    query.price = priceFilter;
+    delete query.minPrice;
+    delete query.maxPrice;
+  }
+
+  const {
+    searchTerm,
+    category,
+    brand,
+    price,
+    sort = "-quantity",
+    limit = 10,
+    page = 1,
+    fields,
+  } = query;
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  let pipeline: any[] = [];
+  let isAggregate = false;
+
+  if (searchTerm) {
+    isAggregate = true;
+    pipeline = [
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brand",
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: { path: "$brand", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $unwind: { path: "$category", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $match: {
+          $or: [
+            { name: { $regex: searchTerm, $options: "i" } },
+            { "brand.name": { $regex: searchTerm, $options: "i" } },
+            { "category.name": { $regex: searchTerm, $options: "i" } },
+          ],
+        },
+      },
+    ];
+  }
+
+  // Apply filters
+  const matchFilter: any = {};
+  if (category && Array.isArray(category)) {
+    matchFilter.category = { $in: category };
+  }
+  if (brand && Array.isArray(brand)) {
+    matchFilter.brand = { $in: brand };
+  }
+  if (price) {
+    matchFilter.price = price;
+  }
+
+  if (Object.keys(matchFilter).length > 0) {
+    pipeline.push({ $match: matchFilter });
+  }
+
+  // Sorting
+  const sortObj: any = {};
+  const sortFields = (sort as string).split(",");
+  sortFields.forEach((field) => {
+    if (field.startsWith("-")) {
+      sortObj[field.slice(1)] = -1;
+    } else {
+      sortObj[field] = 1;
+    }
+  });
+  // Ensure stable sorting
+  if (!sortObj._id) {
+    sortObj._id = -1;
+  }
+  pipeline.push({ $sort: sortObj });
+
+  // Pagination
+  pipeline.push({ $skip: skip });
+  pipeline.push({ $limit: Number(limit) });
+
+  // Fields
+  if (fields) {
+    const fieldObj: any = { __v: 0 };
+    const fieldList = (fields as string).split(",");
+    fieldList.forEach((field) => {
+      if (field.startsWith("-")) {
+        fieldObj[field.slice(1)] = 0;
+      } else {
+        fieldObj[field] = 1;
+      }
+    });
+    pipeline.push({ $project: fieldObj });
+  }
+
+  let data: any[];
+  let total: number;
+
+  if (isAggregate) {
+    data = await Drone.aggregate(pipeline);
+
+    // Count total
+    const countPipeline = [...pipeline.slice(0, -2)]; // Remove skip and limit
+    countPipeline.push({ $count: "total" });
+    const countResult = await Drone.aggregate(countPipeline);
+    total = countResult[0]?.total || 0;
+  } else {
+    let mongooseQuery = Drone.find(matchFilter)
+      .sort(sortObj)
+      .skip(skip)
+      .limit(Number(limit));
+
+    if (fields) {
+      const selectFields = (fields as string).split(",").join(" ");
+      mongooseQuery = mongooseQuery.select(selectFields);
+    }
+
+    mongooseQuery = mongooseQuery.populate("brand").populate("category");
+    data = await mongooseQuery;
+
+    total = await Drone.countDocuments(matchFilter);
+  }
+
+  const totalPage = Math.ceil(total / Number(limit));
+
+  const meta = {
+    total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPage,
+  };
+
   console.log("user id inside drone.service.ts -", userId);
 
   // Add wishlist status if user is authenticated
@@ -35,7 +179,7 @@ const getDronesFromDB = async (
         item.drone.toString(),
       );
 
-      data.forEach((drone) => {
+      data.forEach((drone: any) => {
         drone.isInWishlist = wishlistDroneIds.includes(drone._id.toString());
       });
     } catch (error) {

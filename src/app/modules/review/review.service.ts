@@ -9,7 +9,12 @@ import type IReview from "./review.interface";
 import Review from "./review.model";
 
 const createReviewIntoDB = async (
-  payload: { orderId: string; droneId: string; rating: number; comment: string },
+  payload: {
+    orderId: string;
+    droneId: string;
+    rating: number;
+    comment: string;
+  },
   user: IJwtPayload,
 ) => {
   // Check if order exists and belongs to user and is completed
@@ -40,7 +45,10 @@ const createReviewIntoDB = async (
   });
 
   if (existingReview) {
-    throw new AppError(status.BAD_REQUEST, "Review already exists for this drone");
+    throw new AppError(
+      status.BAD_REQUEST,
+      "Review already exists for this drone",
+    );
   }
 
   const review = await Review.create({
@@ -53,7 +61,9 @@ const createReviewIntoDB = async (
 
   // Update order to include the review
   await Order.findByIdAndUpdate(payload.orderId, {
-    $push: { reviews: { drone: useObjectId(payload.droneId), review: review._id } }
+    $push: {
+      reviews: { drone: useObjectId(payload.droneId), review: review._id },
+    },
   });
 
   return review;
@@ -89,7 +99,7 @@ const deleteReviewIntoDB = async (reviewId: string, user: IJwtPayload) => {
 
   // Update order to remove the review
   await Order.findByIdAndUpdate(review.order, {
-    $pull: { reviews: { review: review._id } }
+    $pull: { reviews: { review: review._id } },
   });
 
   return review;

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { AnalyticsRoutes } from "../modules/analytics/analytics.route";
 import { AuthRoutes } from "../modules/auth/auth.route";
 import { BrandRoutes } from "../modules/brand/brand.route";
 import { CartRoutes } from "../modules/cart/cart.route";
@@ -13,6 +14,10 @@ import { WishListRoutes } from "../modules/wishlist/wishlist.route";
 
 const router = Router();
 const moduleRoutes = [
+  {
+    path: "/analytics",
+    route: AnalyticsRoutes,
+  },
   {
     path: "/auth",
     route: AuthRoutes,

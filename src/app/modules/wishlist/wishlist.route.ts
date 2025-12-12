@@ -1,7 +1,7 @@
 import { Router } from "express";
 import auth from "../../middlewares/auth";
-import { WishlistController } from "./wishlist.controller";
 import { USER_ROLE } from "../user/user.constant";
+import { WishlistController } from "./wishlist.controller";
 
 const router = Router();
 

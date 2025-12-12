@@ -11,7 +11,10 @@ export default interface IOrder {
   payment: Types.ObjectId | IPayment;
   shippingInformation: Types.ObjectId | IShippingInfo;
   drones: { id: Types.ObjectId | IDrone; quantity: number }[];
-  reviews: { drone: Types.ObjectId | IDrone; review: Types.ObjectId | IReview }[];
+  reviews: {
+    drone: Types.ObjectId | IDrone;
+    review: Types.ObjectId | IReview;
+  }[];
   status: TOrderStatus;
   cancelReason?: string;
   totalPrice: number;
