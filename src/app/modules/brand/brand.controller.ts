@@ -15,7 +15,7 @@ const getBrands = catchAsync(async (req, res) => {
 });
 
 const createBrand = catchAsync(async (req, res) => {
-  const data = await BrandServices.createBrandIntoDB(req.body);
+  const data = await BrandServices.createBrandIntoDB(req.body, req.file);
   sendResponse(res, {
     data,
     message: "Brand created successfully",
@@ -35,7 +35,11 @@ const getBrandById = catchAsync(async (req, res) => {
 });
 
 const updateBrand = catchAsync(async (req, res) => {
-  const data = await BrandServices.updateBrandIntoDB(req.params.id, req.body);
+  const data = await BrandServices.updateBrandIntoDB(
+    req.params.id,
+    req.body,
+    req.file,
+  );
   sendResponse(res, {
     data,
     message: "Brand updated successfully",

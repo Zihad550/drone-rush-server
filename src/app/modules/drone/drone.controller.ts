@@ -30,7 +30,9 @@ const getDroneById = catchAsync(async (req, res) => {
 });
 
 const createDrone = catchAsync(async (req, res) => {
-  const data = await DroneServices.createDroneIntoDB(req.body);
+  console.log("body", req.body);
+  console.log("req file", req.file);
+  const data = await DroneServices.createDroneIntoDB(req.body, req.file);
   sendResponse(res, {
     data,
     statusCode: status.OK,
@@ -43,6 +45,7 @@ const updateDrone = catchAsync(async (req, res) => {
   const data = await DroneServices.updateDroneByIdFromDB(
     req.params.id,
     req.body,
+    req.file,
   );
 
   sendResponse(res, {

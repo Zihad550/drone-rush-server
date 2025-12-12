@@ -1,4 +1,5 @@
 import QueryBuilder from "../../builder/QueryBuilder";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { BrandSearchableFields } from "./brand.constant";
 import type IBrand from "./brand.interface";
 import Brand from "./brand.model";
@@ -18,7 +19,14 @@ const getBrandsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const createBrandIntoDB = async (payload: IBrand) => {
+const createBrandIntoDB = async (payload: IBrand, file: any) => {
+  if (file) {
+    const imageName = `${payload.name}-${crypto.randomUUID()}`;
+    const path = file?.path;
+    // send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    if (typeof secure_url === "string") payload.logo = secure_url;
+  }
   return await Brand.create(payload);
 };
 
@@ -30,7 +38,18 @@ const getBrandByIdFromDB = async (id: string) => {
   return brand;
 };
 
-const updateBrandIntoDB = async (id: string, payload: Partial<IBrand>) => {
+const updateBrandIntoDB = async (
+  id: string,
+  payload: Partial<IBrand>,
+  file: any,
+) => {
+  if (file) {
+    const imageName = `${id}-${crypto.randomUUID()}`;
+    const path = file?.path;
+    // send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    if (typeof secure_url === "string") payload.logo = secure_url;
+  }
   const brand = await Brand.findByIdAndUpdate(id, payload, { new: true });
   if (!brand) {
     throw new Error("Brand not found");

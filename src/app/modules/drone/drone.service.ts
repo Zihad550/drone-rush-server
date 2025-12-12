@@ -1,10 +1,12 @@
 import status from "http-status";
+import crypto from "crypto";
 import AppError from "../../errors/AppError";
 import { useObjectId } from "../../utils/useObjectId";
 import Cart from "../cart/cart.model";
 import Wishlist from "../wishlist/wishlist.model";
 import type IDrone from "./drone.interface";
 import Drone from "./drone.model";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 
 const getDronesFromDB = async (
   query: Record<string, unknown>,
@@ -241,11 +243,50 @@ const getDroneByIdFromDB = async (id: string, userId?: string) => {
   return drone;
 };
 
-const createDroneIntoDB = async (payload: IDrone) => {
+const createDroneIntoDB = async (payload: IDrone, file: any) => {
+  console.log("createDroneIntoDB - payload:", payload);
+  console.log("createDroneIntoDB - file:", file);
+
+  if (file) {
+    const imageName = `${payload.name}-${crypto.randomUUID()}`;
+    const path = file?.path;
+    console.log("createDroneIntoDB - uploading image:", imageName, path);
+    // send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    console.log("createDroneIntoDB - cloudinary result:", { secure_url });
+    if (typeof secure_url === "string") payload.img = secure_url;
+  } else {
+    console.log("createDroneIntoDB - no file provided");
+  }
+
+  console.log("createDroneIntoDB - final payload:", payload);
   return await Drone.create(payload);
 };
 
-const updateDroneByIdFromDB = async (id: string, payload: Partial<IDrone>) => {
+const updateDroneByIdFromDB = async (
+  id: string,
+  payload: Partial<IDrone>,
+  file: any,
+) => {
+  console.log("updateDroneByIdFromDB - id:", id);
+  console.log("updateDroneByIdFromDB - payload:", payload);
+  console.log("updateDroneByIdFromDB - file:", file);
+
+  if (file) {
+    const imageName = `${id}-${crypto.randomUUID()}`;
+    const path = file?.path;
+    console.log("updateDroneByIdFromDB - uploading image:", imageName, path);
+    // send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    console.log("updateDroneByIdFromDB - cloudinary result:", { secure_url });
+    if (typeof secure_url === "string") payload.img = secure_url;
+  } else {
+    console.log("updateDroneByIdFromDB - no file provided, keeping existing image");
+    // Remove img from payload to avoid overwriting with undefined
+    delete payload.img;
+  }
+
+  console.log("updateDroneByIdFromDB - final payload:", payload);
   const data = await Drone.findOneAndUpdate({ _id: id }, payload, {
     new: true,
   });
