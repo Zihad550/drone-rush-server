@@ -12,7 +12,11 @@ import Payment from "../payment/payment.model";
 import type { ISSLCommerz } from "../payment/sslCommerz.interface";
 import { SSLServices } from "../payment/sslCommerz.service";
 import User from "../user/user.model";
-import { ORDER_STATUS, OrderSearchableFields } from "./order.constant";
+import {
+  isOrderStatusImmutable,
+  ORDER_STATUS,
+  OrderSearchableFields,
+} from "./order.constant";
 import type IOrder from "./order.interface";
 import type { ICreateOrder, TOrderStatus } from "./order.interface";
 import Order from "./order.model";
@@ -198,6 +202,12 @@ const updateOrderStatusIntoDB = async ({
   else orderExists = await Order.findOne({ _id: id });
 
   if (!orderExists) throw new AppError(status.NOT_FOUND, "Order not found!");
+
+  if (user.role !== "user" && isOrderStatusImmutable(orderExists.status))
+    throw new AppError(
+      status.BAD_REQUEST,
+      "Cannot change status of completed or user-cancelled orders",
+    );
 
   if (user.role === "user" && orderExists.status === "COMPLETED")
     throw new AppError(status.BAD_REQUEST, "Order is already completed!");

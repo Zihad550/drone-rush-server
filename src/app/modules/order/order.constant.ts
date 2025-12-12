@@ -22,3 +22,12 @@ export const OrderStatuses: TOrderStatus[] = [
   "FAILED",
   "ADMIN-CANCELLED",
 ];
+
+export const IMMUTABLE_ORDER_STATUSES: TOrderStatus[] = [
+  "COMPLETED",
+  "USER-CANCELLED",
+];
+
+export const isOrderStatusImmutable = (status: TOrderStatus): boolean => {
+  return IMMUTABLE_ORDER_STATUSES.includes(status);
+};
