@@ -6,9 +6,10 @@ import { CategoryRoutes } from "../modules/category/category.route";
 import { DroneRoutes } from "../modules/drone/drone.route";
 import { OrderRoutes } from "../modules/order/order.route";
 import { PaymentRoutes } from "../modules/payment/payment.route";
+import { ReviewRoutes } from "../modules/review/review.route";
 import { ShippingInformationRoutes } from "../modules/shippingInformation/shippingInformation.route";
 import { UserRoutes } from "../modules/user/user.route";
-import { WishlistRoutes } from "../modules/wishlist/wishlist.route";
+import { WishListRoutes } from "../modules/wishlist/wishlist.route";
 
 const router = Router();
 const moduleRoutes = [
@@ -23,6 +24,10 @@ const moduleRoutes = [
   {
     path: "/orders",
     route: OrderRoutes,
+  },
+  {
+    path: "/reviews",
+    route: ReviewRoutes,
   },
   {
     path: "/categories",
@@ -42,7 +47,7 @@ const moduleRoutes = [
   },
   {
     path: "/wishlist",
-    route: WishlistRoutes,
+    route: WishListRoutes,
   },
   {
     path: "/cart",

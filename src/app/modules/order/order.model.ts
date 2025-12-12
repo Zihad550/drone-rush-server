@@ -15,6 +15,17 @@ const orderDroneSchema = new Schema<IOrderDrone>({
   },
 });
 
+const orderReviewSchema = new Schema({
+  drone: {
+    type: Schema.Types.ObjectId,
+    ref: "Drone",
+  },
+  review: {
+    type: Schema.Types.ObjectId,
+    ref: "Review",
+  },
+});
+
 const orderSchema = new Schema<IOrder>(
   {
     user: {
@@ -31,6 +42,10 @@ const orderSchema = new Schema<IOrder>(
       ref: "ShippingInformation",
     },
     drones: [orderDroneSchema],
+    reviews: {
+      type: [orderReviewSchema],
+      default: [],
+    },
     status: {
       type: String,
       enum: OrderStatuses,

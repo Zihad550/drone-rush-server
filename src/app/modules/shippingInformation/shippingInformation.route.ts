@@ -12,22 +12,22 @@ router.get(
 );
 router.get(
   "/user",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+  auth(USER_ROLE.USER),
   ShippingInformationControllers.getUserShippingInformations,
 );
 router.post(
   "/",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+  auth(USER_ROLE.USER),
   ShippingInformationControllers.createShippingInformation,
 );
 router.get(
   "/:id",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+  auth(USER_ROLE.USER),
   ShippingInformationControllers.getShippingInformationById,
 );
 router.patch(
   "/:id",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.USER),
+  auth(USER_ROLE.USER),
   ShippingInformationControllers.updateShippingInformation,
 );
 router.delete(

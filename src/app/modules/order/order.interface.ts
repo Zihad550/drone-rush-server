@@ -1,6 +1,7 @@
 import type { Types } from "mongoose";
 import type IDrone from "../drone/drone.interface";
 import type { IPayment } from "../payment/payment.interface";
+import type IReview from "../review/review.interface";
 import type IShippingInfo from "../shippingInformation/shippingInformation.interface";
 import type IUser from "../user/user.interface";
 
@@ -10,6 +11,7 @@ export default interface IOrder {
   payment: Types.ObjectId | IPayment;
   shippingInformation: Types.ObjectId | IShippingInfo;
   drones: { id: Types.ObjectId | IDrone; quantity: number }[];
+  reviews: { drone: Types.ObjectId | IDrone; review: Types.ObjectId | IReview }[];
   status: TOrderStatus;
   cancelReason?: string;
   totalPrice: number;

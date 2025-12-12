@@ -8,6 +8,16 @@ const reviewSchema = new Schema<IReview>(
       ref: "User",
       required: true,
     },
+    order: {
+      type: Schema.Types.ObjectId,
+      ref: "Order",
+      required: true,
+    },
+    drone: {
+      type: Schema.Types.ObjectId,
+      ref: "Drone",
+      required: true,
+    },
     comment: {
       type: String,
       required: true,
@@ -15,7 +25,7 @@ const reviewSchema = new Schema<IReview>(
     rating: {
       type: Number,
       required: true,
-      min: 0,
+      min: 1,
       max: 5,
     },
   },

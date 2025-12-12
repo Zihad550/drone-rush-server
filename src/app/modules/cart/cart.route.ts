@@ -1,22 +1,31 @@
 import { Router } from "express";
 import auth from "../../middlewares/auth";
 import { CartController } from "./cart.controller";
+import { USER_ROLE } from "../user/user.constant";
 
 const router = Router();
 
-router.post("/add", auth(), CartController.addToCart);
+router.post("/add", auth(USER_ROLE.USER), CartController.addToCart);
 router.post(
   "/add-and-remove-from-wishlist",
-  auth(),
+  auth(USER_ROLE.USER),
   CartController.addToCartAndRemoveFromWishlist,
 );
 router.post(
   "/move-to-wishlist",
-  auth(),
+  auth(USER_ROLE.USER),
   CartController.addToWishlistAndRemoveFromCart,
 );
-router.put("/update/:droneId", auth(), CartController.updateCartQuantity);
-router.delete("/remove/:droneId", auth(), CartController.removeFromCart);
-router.get("/", auth(), CartController.getCart);
+router.put(
+  "/update/:droneId",
+  auth(USER_ROLE.USER),
+  CartController.updateCartQuantity,
+);
+router.delete(
+  "/remove/:droneId",
+  auth(USER_ROLE.USER),
+  CartController.removeFromCart,
+);
+router.get("/", auth(USER_ROLE.USER), CartController.getCart);
 
 export const CartRoutes = router;

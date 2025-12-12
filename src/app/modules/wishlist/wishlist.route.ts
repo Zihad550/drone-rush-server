@@ -1,15 +1,16 @@
 import { Router } from "express";
 import auth from "../../middlewares/auth";
 import { WishlistController } from "./wishlist.controller";
+import { USER_ROLE } from "../user/user.constant";
 
 const router = Router();
 
-router.post("/add", auth(), WishlistController.addToWishlist);
+router.post("/add", auth(USER_ROLE.USER), WishlistController.addToWishlist);
 router.delete(
   "/remove/:droneId",
-  auth(),
+  auth(USER_ROLE.USER),
   WishlistController.removeFromWishlist,
 );
-router.get("/", auth(), WishlistController.getWishlist);
+router.get("/", auth(USER_ROLE.USER), WishlistController.getWishlist);
 
-export const WishlistRoutes = router;
+export const WishListRoutes = router;
