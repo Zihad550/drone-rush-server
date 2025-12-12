@@ -17,8 +17,6 @@ export const seedSuperAdmin = async () => {
       email: env.SUPER_ADMIN_EMAIL,
       password: env.SUPER_ADMIN_PASSWORD,
       status: "active",
-      phone: "+1234567890",
-      address: "System Admin",
     };
 
     await User.create(payload);

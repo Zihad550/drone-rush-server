@@ -48,9 +48,9 @@ const getUserOrdersFromDB = async ({
   const ordersQuery = new QueryBuilder(
     Order.find({
       user: useObjectId(userId),
-      status: {
-        $nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
-      },
+      // status: {
+      //   $nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
+      // },
     }).populate("drones.id"),
     query,
   )
