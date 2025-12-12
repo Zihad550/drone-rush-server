@@ -63,6 +63,14 @@ const getDronesFromDB = async (
         },
       },
       {
+        $lookup: {
+          from: "reviews",
+          localField: "reviews",
+          foreignField: "_id",
+          as: "reviews",
+        },
+      },
+      {
         $unwind: { path: "$brand", preserveNullAndEmptyArrays: true },
       },
       {
@@ -152,7 +160,10 @@ const getDronesFromDB = async (
       mongooseQuery = mongooseQuery.select(selectFields);
     }
 
-    mongooseQuery = mongooseQuery.populate("brand").populate("category");
+    mongooseQuery = mongooseQuery
+      .populate("brand")
+      .populate("category")
+      .populate("reviews");
     data = await mongooseQuery;
 
     total = await Drone.countDocuments(matchFilter);
@@ -197,7 +208,14 @@ const getDronesFromDB = async (
 const getDroneByIdFromDB = async (id: string, userId?: string) => {
   const drone = await Drone.findOne({ _id: id })
     .populate("brand")
-    .populate("category");
+    .populate("category")
+    .populate({
+      path: "reviews",
+      populate: {
+        path: "user",
+        select: "name",
+      },
+    });
 
   if (!drone) throw new AppError(status.NOT_FOUND, "Drone not found!");
 

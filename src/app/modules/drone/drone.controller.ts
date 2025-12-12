@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse";
 import { DroneServices } from "./drone.service";
 
 const getDrones = catchAsync(async (req, res) => {
-  const userId = req?.query?.userId;
+  const userId = req?.query?.userId as string;
   const query = req.query;
   if (query.userId) delete query.userId;
   console.log(userId);
@@ -19,7 +19,7 @@ const getDrones = catchAsync(async (req, res) => {
 });
 
 const getDroneById = catchAsync(async (req, res) => {
-  const userId = req?.query?.userId;
+  const userId = req?.query?.userId as string;
   const data = await DroneServices.getDroneByIdFromDB(req.params.id, userId);
   sendResponse(res, {
     data,

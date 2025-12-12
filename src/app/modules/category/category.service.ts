@@ -1,8 +1,8 @@
 import QueryBuilder from "../../builder/QueryBuilder";
+import { DroneServices } from "../drone/drone.service";
 import { CategorySearchableFields } from "./category.constant";
 import type ICategory from "./category.interface";
 import Category from "./category.model";
-import { DroneServices } from "../drone/drone.service";
 
 const getCategoriesFromDB = async (query: Record<string, unknown>) => {
   const categoriesQuery = new QueryBuilder(Category.find(), query)
