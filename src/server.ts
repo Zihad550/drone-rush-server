@@ -1,4 +1,4 @@
-import type { Server } from "http";
+import type { Server } from "node:http";
 import mongoose from "mongoose";
 import app from "./app";
 import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";

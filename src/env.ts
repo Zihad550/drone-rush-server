@@ -1,5 +1,5 @@
+import path from "node:path";
 import dotenv from "dotenv";
-import path from "path";
 import { ZodError, z } from "zod";
 
 dotenv.config({

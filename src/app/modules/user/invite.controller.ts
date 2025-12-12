@@ -1,8 +1,6 @@
 import status from "http-status";
-import auth from "../../middlewares/auth";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-import { USER_ROLE } from "./user.constant";
 import { UserServices } from "./user.service";
 
 const sendInvite = catchAsync(async (req, res) => {

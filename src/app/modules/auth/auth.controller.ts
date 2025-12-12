@@ -43,7 +43,7 @@ const refreshToken = catchAsync(async (req, res) => {
   });
 });
 
-const logout = catchAsync(async (req, res) => {
+const logout = catchAsync(async (_req, res) => {
   res.clearCookie("refreshToken", {
     secure: true,
     httpOnly: true,

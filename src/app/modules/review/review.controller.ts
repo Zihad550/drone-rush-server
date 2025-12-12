@@ -1,8 +1,6 @@
 import status from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-import { useObjectId } from "../../utils/useObjectId";
-import Review from "./review.model";
 import { ReviewServices } from "./review.service";
 
 const createReview = catchAsync(async (req, res) => {

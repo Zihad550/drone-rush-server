@@ -1,6 +1,6 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import status from "http-status";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import type { IJwtPayload } from "../../interface";
@@ -14,7 +14,6 @@ import { SSLServices } from "../payment/sslCommerz.service";
 import User from "../user/user.model";
 import {
   isOrderStatusImmutable,
-  ORDER_STATUS,
   OrderSearchableFields,
 } from "./order.constant";
 import type IOrder from "./order.interface";
@@ -176,7 +175,7 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     await session.endSession();
 
     return { paymentUrl: sslPayment.GatewayPageURL };
-  } catch (err) {
+  } catch (_err) {
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(status.BAD_REQUEST, "Failed to create order!");

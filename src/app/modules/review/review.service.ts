@@ -5,7 +5,6 @@ import type { IJwtPayload } from "../../interface";
 import { useObjectId } from "../../utils/useObjectId";
 import Order from "../order/order.model";
 import { ReviewSearchableFields } from "./review.constant";
-import type IReview from "./review.interface";
 import Review from "./review.model";
 
 const createReviewIntoDB = async (

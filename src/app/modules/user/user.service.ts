@@ -78,7 +78,7 @@ const verifyInviteToken = async (token: string) => {
     if (!invite)
       throw new AppError(status.BAD_REQUEST, "Invalid or expired invite");
     return { email: decoded.email, inviteId: invite._id };
-  } catch (error) {
+  } catch (_error) {
     throw new AppError(status.BAD_REQUEST, "Invalid token");
   }
 };

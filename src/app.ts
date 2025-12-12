@@ -22,7 +22,7 @@ app.use(
 app.use(cookieParser());
 
 // application routes
-app.get("/", async (req, res) => {
+app.get("/", async (_req, res) => {
   res.send("hello world!");
 });
 

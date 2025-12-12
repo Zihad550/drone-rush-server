@@ -1,12 +1,12 @@
+import crypto from "node:crypto";
 import status from "http-status";
-import crypto from "crypto";
 import AppError from "../../errors/AppError";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 import { useObjectId } from "../../utils/useObjectId";
 import Cart from "../cart/cart.model";
 import Wishlist from "../wishlist/wishlist.model";
 import type IDrone from "./drone.interface";
 import Drone from "./drone.model";
-import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 
 const getDronesFromDB = async (
   query: Record<string, unknown>,
@@ -193,7 +193,7 @@ const getDronesFromDB = async (
       data.forEach((drone: any) => {
         drone.isInWishlist = wishlistDroneIds.includes(drone._id.toString());
       });
-    } catch (error) {
+    } catch (_error) {
       // Invalid userId, skip wishlist
       console.warn("Invalid userId for wishlist:", userId);
     }
@@ -232,7 +232,7 @@ const getDroneByIdFromDB = async (id: string, userId?: string) => {
       });
       drone.isInWishlist = !!wishlistItem;
       drone.isInCart = !!cartItem;
-    } catch (error) {
+    } catch (_error) {
       // Invalid userId, skip
       console.warn("Invalid userId for drone details:", userId);
     }

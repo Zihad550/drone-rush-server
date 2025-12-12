@@ -1,6 +1,6 @@
+import path from "node:path";
 import ejs from "ejs";
 import nodemailer from "nodemailer";
-import path from "path";
 import env from "../../env";
 import AppError from "../errors/AppError";
 
@@ -36,7 +36,7 @@ export const sendEmail = async ({
   try {
     const templatePath = path.join(__dirname, `templates/${templateName}.ejs`);
     const html = await ejs.renderFile(templatePath, templateData);
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from: env.EMAIL_SENDER.SMTP_FROM,
       to: to,
       subject: subject,
@@ -47,7 +47,7 @@ export const sendEmail = async ({
         contentType: attachment.contentType,
       })),
     });
-  } catch (error: any) {
+  } catch {
     throw new AppError(401, "Email error");
   }
 };
