@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
 
-import type IInvite, { IInviteModelType, TInviteStatus } from "./invite.interface";
+import type IInvite from "./invite.interface";
+import type { IInviteModelType, TInviteStatus } from "./invite.interface";
 
 const inviteSchema = new Schema<IInvite, IInviteModelType>(
   {

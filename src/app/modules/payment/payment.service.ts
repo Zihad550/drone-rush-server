@@ -50,7 +50,7 @@ const successPayment = async (query: Record<string, string>) => {
 
     const order = await Order.findByIdAndUpdate(
       updated_payment.order,
-      { status: "COMPLETED" },
+      { status: "PROCESSING" },
       { runValidators: true, session },
     );
     if (!order) throw new AppError(status.NOT_FOUND, "Order not found");
