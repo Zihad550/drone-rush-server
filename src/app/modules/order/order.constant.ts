@@ -8,6 +8,7 @@ export const ORDER_STATUS = {
   DELIVERING: "delivering",
   COMPLETED: "completed",
   USER_CANCELLED: "user-cancelled",
+  FAILED: "failed",
   ADMIN_CANCELLED: "admin-cancelled",
 } as const;
 
@@ -19,5 +20,5 @@ export const OrderStatuses: TOrderStatus[] = [
   "COMPLETED",
   "USER-CANCELLED",
   "FAILED",
-  // "ADMIN-CANCELLED",
+  "ADMIN-CANCELLED",
 ];

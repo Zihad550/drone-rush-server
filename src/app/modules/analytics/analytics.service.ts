@@ -2,8 +2,12 @@ import mongoose from "mongoose";
 import Cart from "../cart/cart.model";
 import Order from "../order/order.model";
 import Review from "../review/review.model";
+import User from "../user/user.model";
 import Wishlist from "../wishlist/wishlist.model";
-import type { IAnalyticsData } from "./analytics.interface";
+import type {
+  IAdminAnalyticsData,
+  IAnalyticsData,
+} from "./analytics.interface";
 
 const getUserAnalytics = async (userId: string): Promise<IAnalyticsData> => {
   // Orders aggregation
@@ -76,6 +80,117 @@ const getUserAnalytics = async (userId: string): Promise<IAnalyticsData> => {
   };
 };
 
+const getAdminAnalytics = async (): Promise<IAdminAnalyticsData> => {
+  // Total users
+  const totalUsers = await User.countDocuments();
+
+  // Total orders and revenue
+  const orderStats = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalOrders: { $sum: 1 },
+        totalRevenue: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "COMPLETED"] }, "$totalPrice", 0],
+          },
+        },
+        orderStatusDistribution: { $push: "$status" },
+      },
+    },
+  ]);
+
+  // Process order status distribution
+  const orderStatusDistribution: { [key: string]: number } = {};
+  if (orderStats.length > 0) {
+    orderStats[0].orderStatusDistribution.forEach((status: string) => {
+      orderStatusDistribution[status] =
+        (orderStatusDistribution[status] || 0) + 1;
+    });
+  }
+
+  // Top drones
+  const topDrones = await Order.aggregate([
+    { $unwind: "$drones" },
+    {
+      $group: {
+        _id: "$drones.drone",
+        salesCount: { $sum: "$drones.quantity" },
+      },
+    },
+    { $sort: { salesCount: -1 } },
+    { $limit: 10 },
+    {
+      $lookup: {
+        from: "drones",
+        localField: "_id",
+        foreignField: "_id",
+        as: "drone",
+      },
+    },
+    { $unwind: "$drone" },
+    {
+      $project: {
+        droneId: "$_id",
+        name: "$drone.name",
+        salesCount: 1,
+      },
+    },
+  ]);
+
+  // User growth (by month)
+  const userGrowth = await User.aggregate([
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m", date: "$createdAt" },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: "$_id",
+        count: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Revenue over time (by month, completed orders)
+  const revenueOverTime = await Order.aggregate([
+    { $match: { status: "COMPLETED" } },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m", date: "$createdAt" },
+        },
+        amount: { $sum: "$totalPrice" },
+      },
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        date: "$_id",
+        amount: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  return {
+    totalUsers,
+    totalOrders: orderStats[0]?.totalOrders || 0,
+    totalRevenue: orderStats[0]?.totalRevenue || 0,
+    orderStatusDistribution,
+    topDrones,
+    userGrowth,
+    revenueOverTime,
+  };
+};
+
 export const AnalyticsServices = {
   getUserAnalytics,
+  getAdminAnalytics,
 };

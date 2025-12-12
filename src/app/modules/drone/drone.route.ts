@@ -12,6 +12,11 @@ router.post(
   DroneControllers.createDrone,
 );
 router.get("/:id", DroneControllers.getDroneById);
+router.patch(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  DroneControllers.updateDrone,
+);
 router.delete(
   "/:id",
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),

@@ -22,6 +22,7 @@ const EnvSchema = z
     JWT_REFRESH_SECRET: z.string(),
     JWT_ACCESS_EXPIRES_IN: z.string(),
     JWT_REFRESH_EXPIRES_IN: z.string(),
+    JWT_ACCESS_CONTROL: z.string(),
 
     // frontend
     PRODUCTION_FRONTEND_URL: z.string(),

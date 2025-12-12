@@ -11,6 +11,16 @@ router.post(
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   CategoryControllers.createCategory,
 );
+router.patch(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  CategoryControllers.updateCategory,
+);
+router.delete(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  CategoryControllers.deleteCategory,
+);
 
 router.get("/:id/drones", CategoryControllers.getDronesByCategory);
 

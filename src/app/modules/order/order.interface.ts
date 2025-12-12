@@ -41,5 +41,5 @@ export type TOrderStatus =
   | "DELIVERING"
   | "USER-CANCELLED"
   | "FAILED"
-  | "COMPLETED";
-// | "ADMIN-CANCELLED"
+  | "COMPLETED"
+  | "ADMIN-CANCELLED";

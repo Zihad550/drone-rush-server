@@ -24,6 +24,17 @@ const createCategoryIntoDB = async (payload: ICategory) => {
   return await Category.create(payload);
 };
 
+const updateCategoryIntoDB = async (
+  id: string,
+  payload: Partial<ICategory>,
+) => {
+  return await Category.findByIdAndUpdate(id, payload, { new: true });
+};
+
+const deleteCategoryFromDB = async (id: string) => {
+  return await Category.findByIdAndDelete(id);
+};
+
 const getDronesByCategoryFromDB = async (
   id: string,
   query: Record<string, unknown>,
@@ -36,5 +47,7 @@ const getDronesByCategoryFromDB = async (
 export const CategoryServices = {
   getCategoriesFromDB,
   createCategoryIntoDB,
+  updateCategoryIntoDB,
+  deleteCategoryFromDB,
   getDronesByCategoryFromDB,
 };

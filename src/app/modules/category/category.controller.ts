@@ -24,6 +24,28 @@ const createCategory = catchAsync(async (req, res) => {
   });
 });
 
+const updateCategory = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const data = await CategoryServices.updateCategoryIntoDB(id, req.body);
+  sendResponse(res, {
+    data,
+    message: "Category updated successfully",
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
+const deleteCategory = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  await CategoryServices.deleteCategoryFromDB(id);
+  sendResponse(res, {
+    data: null,
+    message: "Category deleted successfully",
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
 const getDronesByCategory = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { meta, data } = await CategoryServices.getDronesByCategoryFromDB(
@@ -42,5 +64,7 @@ const getDronesByCategory = catchAsync(async (req, res) => {
 export const CategoryControllers = {
   getCategories,
   createCategory,
+  updateCategory,
+  deleteCategory,
   getDronesByCategory,
 };

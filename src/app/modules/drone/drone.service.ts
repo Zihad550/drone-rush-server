@@ -245,6 +245,14 @@ const createDroneIntoDB = async (payload: IDrone) => {
   return await Drone.create(payload);
 };
 
+const updateDroneByIdFromDB = async (id: string, payload: Partial<IDrone>) => {
+  const data = await Drone.findOneAndUpdate({ _id: id }, payload, {
+    new: true,
+  });
+  if (!data) throw new AppError(status.NOT_FOUND, "Drone not found!");
+  return data;
+};
+
 const deleteDroneByIdFromDB = async (id: string) => {
   const data = await Drone.findOneAndDelete({ _id: id });
   if (!data) throw new AppError(status.NOT_FOUND, "Drone not found!");
@@ -255,5 +263,6 @@ export const DroneServices = {
   getDronesFromDB,
   getDroneByIdFromDB,
   createDroneIntoDB,
+  updateDroneByIdFromDB,
   deleteDroneByIdFromDB,
 };

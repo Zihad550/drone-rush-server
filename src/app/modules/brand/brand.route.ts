@@ -6,10 +6,21 @@ import { BrandControllers } from "./brand.controller";
 const router = Router();
 
 router.get("/", BrandControllers.getBrands);
+router.get("/:id", BrandControllers.getBrandById);
 router.post(
   "/",
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   BrandControllers.createBrand,
+);
+router.put(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  BrandControllers.updateBrand,
+);
+router.delete(
+  "/:id",
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  BrandControllers.deleteBrand,
 );
 
 export const BrandRoutes = router;

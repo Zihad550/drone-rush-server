@@ -1,14 +1,28 @@
 import { Router } from "express";
 import auth from "../../middlewares/auth";
+import { InviteControllers } from "./invite.controller";
 import { USER_ROLE } from "./user.constant";
 import { UserControllers } from "./user.controller";
 
 const router = Router();
 
+// Invite routes
 router.post(
-  "/update-to-admin",
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  UserControllers.updateUserToAdmin,
+  "/invites/send",
+  auth(USER_ROLE.SUPER_ADMIN),
+  InviteControllers.sendInvite,
+);
+
+router.get(
+  "/invites",
+  auth(USER_ROLE.SUPER_ADMIN),
+  InviteControllers.getInvites,
+);
+
+router.delete(
+  "/invites/:id",
+  auth(USER_ROLE.SUPER_ADMIN),
+  InviteControllers.deleteInviteById,
 );
 
 export const UserRoutes = router;

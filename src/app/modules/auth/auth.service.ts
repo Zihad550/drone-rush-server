@@ -3,22 +3,39 @@ import env from "../../../env";
 import AppError from "../../errors/AppError";
 import type IUser from "../user/user.interface";
 import User from "../user/user.model";
+import { UserServices } from "../user/user.service";
 import { createToken, verifyToken } from "./auth.utils";
 
-const register = async (payload: IUser) => {
+const register = async (payload: IUser & { inviteToken?: string }) => {
   const userExists = await User.findOne({ email: payload.email });
   if (userExists)
     throw new AppError(status.BAD_REQUEST, "User already registered");
 
+  let role: "user" | "admin" = "user";
+  let inviteId: string | undefined;
+
+  if (payload?.inviteToken) {
+    const inviteData = await UserServices.verifyInviteToken(
+      payload.inviteToken,
+    );
+    role = "admin";
+    inviteId = inviteData.inviteId.toString();
+  }
+
   const userData: Partial<IUser> = {
     name: payload.name,
     email: payload.email,
-    role: "user",
+    role,
     status: "active",
     password: payload.password,
   };
   const newUser = await User.create(userData);
   if (!newUser) throw new AppError(status.BAD_REQUEST, "Failed to create user");
+
+  // Mark invite as accepted if it was used
+  if (inviteId) {
+    await UserServices.acceptInvite(inviteId);
+  }
 
   const jwtPayload = {
     id: String(newUser._id),

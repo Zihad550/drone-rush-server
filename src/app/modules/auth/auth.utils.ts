@@ -2,7 +2,7 @@ import jwt, { type SignOptions } from "jsonwebtoken";
 import type { IJwtPayload } from "../../interface";
 
 export const createToken = (
-  jwtPayload: IJwtPayload,
+  jwtPayload: IJwtPayload | Record<string, any>,
   secret: string,
   expiresIn: string,
 ) => {

@@ -39,6 +39,20 @@ const createDrone = catchAsync(async (req, res) => {
   });
 });
 
+const updateDrone = catchAsync(async (req, res) => {
+  const data = await DroneServices.updateDroneByIdFromDB(
+    req.params.id,
+    req.body,
+  );
+
+  sendResponse(res, {
+    data,
+    statusCode: status.OK,
+    success: true,
+    message: "Drone updated successfully",
+  });
+});
+
 const deleteDrone = catchAsync(async (req, res) => {
   const data = await DroneServices.deleteDroneByIdFromDB(req.params.id);
 
@@ -54,5 +68,6 @@ export const DroneControllers = {
   getDrones,
   getDroneById,
   createDrone,
+  updateDrone,
   deleteDrone,
 };

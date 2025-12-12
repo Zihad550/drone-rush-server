@@ -24,7 +24,40 @@ const createBrand = catchAsync(async (req, res) => {
   });
 });
 
+const getBrandById = catchAsync(async (req, res) => {
+  const data = await BrandServices.getBrandByIdFromDB(req.params.id);
+  sendResponse(res, {
+    data,
+    message: "Brand fetched successfully",
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
+const updateBrand = catchAsync(async (req, res) => {
+  const data = await BrandServices.updateBrandIntoDB(req.params.id, req.body);
+  sendResponse(res, {
+    data,
+    message: "Brand updated successfully",
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
+const deleteBrand = catchAsync(async (req, res) => {
+  const data = await BrandServices.deleteBrandFromDB(req.params.id);
+  sendResponse(res, {
+    data,
+    message: "Brand deleted successfully",
+    statusCode: status.OK,
+    success: true,
+  });
+});
+
 export const BrandControllers = {
   getBrands,
   createBrand,
+  getBrandById,
+  updateBrand,
+  deleteBrand,
 };

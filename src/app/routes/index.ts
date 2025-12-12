@@ -43,7 +43,7 @@ const moduleRoutes = [
     route: BrandRoutes,
   },
   {
-    path: "/user",
+    path: "/users",
     route: UserRoutes,
   },
   {

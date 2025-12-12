@@ -15,6 +15,18 @@ const getAnalytics = catchAsync(async (req, res) => {
   });
 });
 
+const getAdminAnalytics = catchAsync(async (_req, res) => {
+  const data = await AnalyticsServices.getAdminAnalytics();
+
+  sendResponse(res, {
+    data,
+    statusCode: status.OK,
+    success: true,
+    message: "Admin analytics retrieved successfully",
+  });
+});
+
 export const AnalyticsControllers = {
   getAnalytics,
+  getAdminAnalytics,
 };
