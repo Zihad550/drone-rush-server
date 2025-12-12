@@ -2,6 +2,7 @@ import QueryBuilder from "../../builder/QueryBuilder";
 import { CategorySearchableFields } from "./category.constant";
 import type ICategory from "./category.interface";
 import Category from "./category.model";
+import { DroneServices } from "../drone/drone.service";
 
 const getCategoriesFromDB = async (query: Record<string, unknown>) => {
   const categoriesQuery = new QueryBuilder(Category.find(), query)
@@ -23,7 +24,17 @@ const createCategoryIntoDB = async (payload: ICategory) => {
   return await Category.create(payload);
 };
 
+const getDronesByCategoryFromDB = async (
+  id: string,
+  query: Record<string, unknown>,
+) => {
+  // Force category filter
+  query.category = [id];
+  return DroneServices.getDronesFromDB(query);
+};
+
 export const CategoryServices = {
   getCategoriesFromDB,
   createCategoryIntoDB,
+  getDronesByCategoryFromDB,
 };

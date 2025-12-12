@@ -24,7 +24,20 @@ const createCategory = catchAsync(async (req, res) => {
   });
 });
 
+const getDronesByCategory = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { meta, data } = await CategoryServices.getDronesByCategoryFromDB(id, req.query);
+  sendResponse(res, {
+    data,
+    message: "Drones fetched successfully for category",
+    statusCode: status.OK,
+    success: true,
+    meta,
+  });
+});
+
 export const CategoryControllers = {
   getCategories,
   createCategory,
+  getDronesByCategory,
 };

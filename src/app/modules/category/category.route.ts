@@ -12,4 +12,6 @@ router.post(
   CategoryControllers.createCategory,
 );
 
+router.get("/:id/drones", CategoryControllers.getDronesByCategory);
+
 export const CategoryRoutes = router;
