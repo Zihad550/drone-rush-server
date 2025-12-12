@@ -177,7 +177,6 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
 
     return { paymentUrl: sslPayment.GatewayPageURL };
   } catch (err) {
-    console.log("err -", err);
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(status.BAD_REQUEST, "Failed to create order!");

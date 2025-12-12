@@ -7,7 +7,6 @@ const getDrones = catchAsync(async (req, res) => {
   const userId = req?.query?.userId as string;
   const query = req.query;
   if (query.userId) delete query.userId;
-  console.log(userId);
   const { data, meta } = await DroneServices.getDronesFromDB(query, userId);
   sendResponse(res, {
     data,
@@ -30,8 +29,6 @@ const getDroneById = catchAsync(async (req, res) => {
 });
 
 const createDrone = catchAsync(async (req, res) => {
-  console.log("body", req.body);
-  console.log("req file", req.file);
   const data = await DroneServices.createDroneIntoDB(req.body, req.file);
   sendResponse(res, {
     data,

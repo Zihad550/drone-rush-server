@@ -37,9 +37,7 @@ const removeCartValidation = z.object({
 const addToCart = catchAsync(async (req: Request, res: Response) => {
   const validatedData = addCartValidation.parse(req);
   const { droneId, quantity } = validatedData.body;
-  console.log("drone id -", droneId);
   const userId = req.user.id;
-  console.log("user id -", userId);
 
   const result = await CartService.addToCart(userId, droneId, quantity);
 
