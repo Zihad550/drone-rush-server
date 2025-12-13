@@ -2,7 +2,6 @@ import path from "node:path";
 import ejs from "ejs";
 import nodemailer from "nodemailer";
 import env from "../../env";
-import AppError from "../errors/AppError";
 
 const transporter = nodemailer.createTransport({
   secure: true,
@@ -47,7 +46,7 @@ export const sendEmail = async ({
         contentType: attachment.contentType,
       })),
     });
-  } catch {
-    throw new AppError(401, "Email error");
+  } catch (_error) {
+    console.log("failed to send email");
   }
 };

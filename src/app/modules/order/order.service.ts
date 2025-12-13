@@ -133,7 +133,10 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     session.startTransaction();
     const order_data = await Order.create([doc], { session });
     if (!order_data)
-      throw new AppError(status.BAD_REQUEST, "Failed to create order!");
+      throw new AppError(
+        status.BAD_REQUEST,
+        "Failed to create order data into db!",
+      );
 
     // payment
     const transaction_id = crypto.randomUUID();
@@ -175,7 +178,8 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     await session.endSession();
 
     return { paymentUrl: sslPayment.GatewayPageURL };
-  } catch (_err) {
+  } catch (err) {
+    console.log("failed to create order err -", err);
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(status.BAD_REQUEST, "Failed to create order!");
