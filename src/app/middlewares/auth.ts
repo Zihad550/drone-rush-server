@@ -7,7 +7,7 @@ import type { TUserRole } from "../modules/user/user.interface";
 import User from "../modules/user/user.model";
 import catchAsync from "../utils/catchAsync";
 
-const auth = (...requiredRoles: TUserRole[]) => {
+const auth = (...required_roles: TUserRole[]) => {
   return catchAsync(async (req, _, next) => {
     const token = req.headers?.authorization || req.cookies.accessToken;
 
@@ -28,12 +28,12 @@ const auth = (...requiredRoles: TUserRole[]) => {
     // checking if the user is already deleted
 
     // checking if the user is blocked
-    const userStatus = user?.status;
+    const user_status = user?.status;
 
-    if (userStatus === "blocked")
+    if (user_status === "blocked")
       throw new AppError(status.FORBIDDEN, "This user is blocked ! !");
 
-    if (requiredRoles?.length && !requiredRoles.includes(role))
+    if (required_roles?.length && !required_roles.includes(role))
       throw new AppError(status.UNAUTHORIZED, "You are not authorized  hi!");
 
     req.user = decoded;

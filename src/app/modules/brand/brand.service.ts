@@ -1,36 +1,36 @@
 import QueryBuilder from "../../builder/QueryBuilder";
-import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
+import { send_image_to_cloudinary } from "../../utils/sendImageToCloudinary";
 import { BrandSearchableFields } from "./brand.constant";
 import type IBrand from "./brand.interface";
 import Brand from "./brand.model";
 
-const getBrandsFromDB = async (query: Record<string, unknown>) => {
-  const categoriesQuery = new QueryBuilder(Brand.find(), query)
+const get_brands_from_db = async (query: Record<string, unknown>) => {
+  const categories_query = new QueryBuilder(Brand.find(), query)
     .search(BrandSearchableFields)
     .filter()
     .sort()
     .paginate()
     .fields();
-  const data = await categoriesQuery.modelQuery;
-  const meta = await categoriesQuery.countTotal();
+  const data = await categories_query.modelQuery;
+  const meta = await categories_query.countTotal();
   return {
     data,
     meta,
   };
 };
 
-const createBrandIntoDB = async (payload: IBrand, file: any) => {
+const create_brand_into_db = async (payload: IBrand, file: any) => {
   if (file) {
-    const imageName = `${payload.name}-${crypto.randomUUID()}`;
+    const image_name = `${payload.name}-${crypto.randomUUID()}`;
     const path = file?.path;
     // send image to cloudinary
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    const { secure_url } = await send_image_to_cloudinary(image_name, path);
     if (typeof secure_url === "string") payload.logo = secure_url;
   }
   return await Brand.create(payload);
 };
 
-const getBrandByIdFromDB = async (id: string) => {
+const get_brand_by_id_from_db = async (id: string) => {
   const brand = await Brand.findById(id);
   if (!brand) {
     throw new Error("Brand not found");
@@ -38,16 +38,16 @@ const getBrandByIdFromDB = async (id: string) => {
   return brand;
 };
 
-const updateBrandIntoDB = async (
+const update_brand_into_db = async (
   id: string,
   payload: Partial<IBrand>,
   file: any,
 ) => {
   if (file) {
-    const imageName = `${id}-${crypto.randomUUID()}`;
+    const image_name = `${id}-${crypto.randomUUID()}`;
     const path = file?.path;
     // send image to cloudinary
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    const { secure_url } = await send_image_to_cloudinary(image_name, path);
     if (typeof secure_url === "string") payload.logo = secure_url;
   }
   const brand = await Brand.findByIdAndUpdate(id, payload, { new: true });
@@ -57,7 +57,7 @@ const updateBrandIntoDB = async (
   return brand;
 };
 
-const deleteBrandFromDB = async (id: string) => {
+const delete_brand_from_db = async (id: string) => {
   const brand = await Brand.findByIdAndDelete(id);
   if (!brand) {
     throw new Error("Brand not found");
@@ -66,9 +66,9 @@ const deleteBrandFromDB = async (id: string) => {
 };
 
 export const BrandServices = {
-  getBrandsFromDB,
-  createBrandIntoDB,
-  getBrandByIdFromDB,
-  updateBrandIntoDB,
-  deleteBrandFromDB,
+  get_brands_from_db,
+  create_brand_into_db,
+  get_brand_by_id_from_db,
+  update_brand_into_db,
+  delete_brand_from_db,
 };

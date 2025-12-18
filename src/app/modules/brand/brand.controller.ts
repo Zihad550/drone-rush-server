@@ -3,8 +3,8 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { BrandServices } from "./brand.service";
 
-const getBrands = catchAsync(async (req, res) => {
-  const { meta, data } = await BrandServices.getBrandsFromDB(req.query);
+const get_brands = catchAsync(async (req, res) => {
+  const { meta, data } = await BrandServices.get_brands_from_db(req.query);
   sendResponse(res, {
     data,
     message: "Brands fetched successfully",
@@ -14,8 +14,8 @@ const getBrands = catchAsync(async (req, res) => {
   });
 });
 
-const createBrand = catchAsync(async (req, res) => {
-  const data = await BrandServices.createBrandIntoDB(req.body, req.file);
+const create_brand = catchAsync(async (req, res) => {
+  const data = await BrandServices.create_brand_into_db(req.body, req.file);
   sendResponse(res, {
     data,
     message: "Brand created successfully",
@@ -24,8 +24,8 @@ const createBrand = catchAsync(async (req, res) => {
   });
 });
 
-const getBrandById = catchAsync(async (req, res) => {
-  const data = await BrandServices.getBrandByIdFromDB(req.params.id);
+const get_brand_by_id = catchAsync(async (req, res) => {
+  const data = await BrandServices.get_brand_by_id_from_db(req.params.id);
   sendResponse(res, {
     data,
     message: "Brand fetched successfully",
@@ -34,8 +34,8 @@ const getBrandById = catchAsync(async (req, res) => {
   });
 });
 
-const updateBrand = catchAsync(async (req, res) => {
-  const data = await BrandServices.updateBrandIntoDB(
+const update_brand = catchAsync(async (req, res) => {
+  const data = await BrandServices.update_brand_into_db(
     req.params.id,
     req.body,
     req.file,
@@ -48,8 +48,8 @@ const updateBrand = catchAsync(async (req, res) => {
   });
 });
 
-const deleteBrand = catchAsync(async (req, res) => {
-  const data = await BrandServices.deleteBrandFromDB(req.params.id);
+const delete_brand = catchAsync(async (req, res) => {
+  const data = await BrandServices.delete_brand_from_db(req.params.id);
   sendResponse(res, {
     data,
     message: "Brand deleted successfully",
@@ -59,9 +59,9 @@ const deleteBrand = catchAsync(async (req, res) => {
 });
 
 export const BrandControllers = {
-  getBrands,
-  createBrand,
-  getBrandById,
-  updateBrand,
-  deleteBrand,
+  get_brands,
+  create_brand,
+  get_brand_by_id,
+  update_brand,
+  delete_brand,
 };

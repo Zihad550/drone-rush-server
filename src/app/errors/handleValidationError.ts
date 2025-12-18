@@ -4,21 +4,21 @@ import type {
   IGenericErrorResponse,
 } from "../interface/error.interface";
 
-const handleValidationError = (
+const handle_validation_error = (
   error: mongoose.Error.ValidationError,
 ): IGenericErrorResponse => {
-  const errorSources: IErrorSource[] = Object.values(error.errors).map(
+  const error_sources: IErrorSource[] = Object.values(error.errors).map(
     (val: mongoose.Error.ValidatorError | mongoose.Error.CastError) => ({
       path: val?.path,
       message: val?.message,
     }),
   );
-  const statusCode = 400;
+  const status_code = 400;
   return {
-    statusCode,
+    statusCode: status_code,
     message: "Validation Error",
-    errorSources,
+    errorSources: error_sources,
   };
 };
 
-export default handleValidationError;
+export default handle_validation_error;

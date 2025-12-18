@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import status from "http-status";
 import AppError from "../../errors/AppError";
-import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
-import { useObjectId } from "../../utils/useObjectId";
+import { send_image_to_cloudinary } from "../../utils/sendImageToCloudinary";
+import { use_object_id } from "../../utils/useObjectId";
 import Cart from "../cart/cart.model";
 import Wishlist from "../wishlist/wishlist.model";
 import type IDrone from "./drone.interface";
@@ -171,20 +171,20 @@ const getDronesFromDB = async (
     total = await Drone.countDocuments(matchFilter);
   }
 
-  const totalPage = Math.ceil(total / Number(limit));
+  const total_page = Math.ceil(total / Number(limit));
 
   const meta = {
     total,
     page: Number(page),
     limit: Number(limit),
-    totalPage,
+    total_page,
   };
 
   // Add wishlist status if user is authenticated
   if (userId) {
     try {
       const wishlistItems = await Wishlist.find({
-        user: useObjectId(userId),
+        user: use_object_id(userId),
       }).select("drone");
       const wishlistDroneIds = wishlistItems.map((item) =>
         item.drone.toString(),
@@ -223,11 +223,11 @@ const getDroneByIdFromDB = async (id: string, userId?: string) => {
   if (userId && drone) {
     try {
       const wishlistItem = await Wishlist.findOne({
-        user: useObjectId(userId),
+        user: use_object_id(userId),
         drone: id,
       });
       const cartItem = await Cart.findOne({
-        user: useObjectId(userId),
+        user: use_object_id(userId),
         drone: id,
       });
       drone.isInWishlist = !!wishlistItem;
@@ -246,7 +246,7 @@ const createDroneIntoDB = async (payload: IDrone, file: any) => {
     const imageName = `${payload.name}-${crypto.randomUUID()}`;
     const path = file?.path;
     // send image to cloudinary
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    const { secure_url } = await send_image_to_cloudinary(imageName, path);
     if (typeof secure_url === "string") payload.img = secure_url;
   }
   return await Drone.create(payload);
@@ -261,7 +261,7 @@ const updateDroneByIdFromDB = async (
     const imageName = `${id}-${crypto.randomUUID()}`;
     const path = file?.path;
     // send image to cloudinary
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    const { secure_url } = await send_image_to_cloudinary(imageName, path);
     if (typeof secure_url === "string") payload.img = secure_url;
   } else {
     // Remove img from payload to avoid overwriting with undefined

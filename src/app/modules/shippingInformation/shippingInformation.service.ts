@@ -1,6 +1,6 @@
 import QueryBuilder from "../../builder/QueryBuilder";
 import type { IJwtPayload } from "../../interface";
-import { useObjectId } from "../../utils/useObjectId";
+import { use_object_id } from "../../utils/useObjectId";
 import type IShippingInfo from "./shippingInformation.interface";
 import ShippingInformation from "./shippingInformation.model";
 
@@ -45,7 +45,7 @@ const getShippingInformationByIdFromDb = async (
 ) => {
   const result = await ShippingInformation.findOne({
     _id: id,
-    user: useObjectId(user.id),
+    user: use_object_id(user.id),
   });
   return result;
 };

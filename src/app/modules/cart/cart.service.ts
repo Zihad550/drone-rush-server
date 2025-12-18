@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import mongoose from "mongoose";
 import AppError from "../../errors/AppError";
-import { useObjectId } from "../../utils/useObjectId";
+import { use_object_id } from "../../utils/useObjectId";
 import Drone from "../drone/drone.model";
 import Wishlist from "../wishlist/wishlist.model";
 import Cart from "./cart.model";
@@ -19,8 +19,8 @@ const addToCart = async (
 
   // Check if already in cart
   const existing = await Cart.findOne({
-    user: useObjectId(userId),
-    drone: useObjectId(droneId),
+    user: use_object_id(userId),
+    drone: use_object_id(droneId),
   });
 
   if (existing) {
@@ -50,8 +50,8 @@ const updateCartQuantity = async (
 
   const result = await Cart.findOneAndUpdate(
     {
-      user: useObjectId(userId),
-      drone: useObjectId(droneId),
+      user: use_object_id(userId),
+      drone: use_object_id(droneId),
     },
     { quantity: newQuantity },
     { new: true },
@@ -65,8 +65,8 @@ const updateCartQuantity = async (
 
 const removeFromCart = async (userId: string, droneId: string) => {
   const result = await Cart.findOneAndDelete({
-    user: useObjectId(userId),
-    drone: useObjectId(droneId),
+    user: use_object_id(userId),
+    drone: use_object_id(droneId),
   });
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, "Cart item not found");
@@ -75,7 +75,7 @@ const removeFromCart = async (userId: string, droneId: string) => {
 };
 
 const getUserCart = async (userId: string) => {
-  const cart = await Cart.find({ user: useObjectId(userId) })
+  const cart = await Cart.find({ user: use_object_id(userId) })
     .populate("drone")
     .sort({ createdAt: -1 });
   return cart;
@@ -98,8 +98,8 @@ const addToCartAndRemoveFromWishlist = async (
 
     // Add to cart (or update quantity if exists)
     const existingCart = await Cart.findOne({
-      user: useObjectId(userId),
-      drone: useObjectId(droneId),
+      user: use_object_id(userId),
+      drone: use_object_id(droneId),
     }).session(session);
 
     let cartItem: any;
@@ -122,8 +122,8 @@ const addToCartAndRemoveFromWishlist = async (
 
     // Remove from wishlist (if exists)
     await Wishlist.findOneAndDelete({
-      user: useObjectId(userId),
-      drone: useObjectId(droneId),
+      user: use_object_id(userId),
+      drone: use_object_id(droneId),
     }).session(session);
 
     await session.commitTransaction();
@@ -152,8 +152,8 @@ const addToWishlistAndRemoveFromCart = async (
 
     // Check if already in wishlist
     const existingWishlist = await Wishlist.findOne({
-      user: useObjectId(userId),
-      drone: useObjectId(droneId),
+      user: use_object_id(userId),
+      drone: use_object_id(droneId),
     }).session(session);
 
     if (!existingWishlist) {
@@ -171,8 +171,8 @@ const addToWishlistAndRemoveFromCart = async (
 
     // Remove from cart
     const cartItem = await Cart.findOneAndDelete({
-      user: useObjectId(userId),
-      drone: useObjectId(droneId),
+      user: use_object_id(userId),
+      drone: use_object_id(droneId),
     }).session(session);
 
     if (!cartItem) {

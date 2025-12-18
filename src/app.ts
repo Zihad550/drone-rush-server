@@ -1,8 +1,8 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import globalErrorHandler from "./app/middlewares/globalErrorHandler";
-import notFound from "./app/middlewares/notFound";
+import global_error_handler from "./app/middlewares/globalErrorHandler";
+import not_found from "./app/middlewares/notFound";
 import router from "./app/routes";
 import env from "./env";
 
@@ -28,7 +28,7 @@ app.get("/", async (_req, res) => {
 
 app.use("/api/v1", router);
 
-app.use(globalErrorHandler);
-app.use(notFound);
+app.use(global_error_handler);
+app.use(not_found);
 
 export default app;

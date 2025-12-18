@@ -1,9 +1,9 @@
 import status from "http-status";
 import { uploadBufferToCloudinary } from "../../config/cloudinary.config";
 import AppError from "../../errors/AppError";
-import { generatePdf, type IInvoiceData } from "../../utils/invoice";
-import { sendEmail } from "../../utils/sendEmail";
-import { useObjectId } from "../../utils/useObjectId";
+import { generate_pdf, type IInvoiceData } from "../../utils/invoice";
+import { send_email } from "../../utils/sendEmail";
+import { use_object_id } from "../../utils/useObjectId";
 import Cart from "../cart/cart.model";
 import Drone from "../drone/drone.model";
 import Order from "../order/order.model";
@@ -36,7 +36,7 @@ const successPayment = async (query: Record<string, string>) => {
       download_link: "",
     };
 
-    const pdf_buffer = await generatePdf(invoiceData);
+    const pdf_buffer = await generate_pdf(invoiceData);
     const cloudinary_result = await uploadBufferToCloudinary(
       pdf_buffer,
       "invoice",
@@ -56,7 +56,7 @@ const successPayment = async (query: Record<string, string>) => {
     if (!order) throw new AppError(status.NOT_FOUND, "Order not found");
 
     // delete cart
-    await Cart.deleteMany({ user: useObjectId(user._id) });
+    await Cart.deleteMany({ user: use_object_id(user._id) });
 
     for (const drone of order.drones) {
       await Drone.findOneAndUpdate(
@@ -71,11 +71,11 @@ const successPayment = async (query: Record<string, string>) => {
     invoiceData.download_link = cloudinary_result.secure_url;
 
     // Send email with invoice
-    await sendEmail({
+    await send_email({
       to: user.email,
       subject: "Your purchase Invoice",
-      templateName: "invoice",
-      templateData: invoiceData,
+      template_name: "invoice",
+      template_data: invoiceData,
       attachments: [
         {
           filename: "invoice.pdf",
@@ -149,7 +149,7 @@ const cancelPayment = async (query: Record<string, string>) => {
 };
 
 const getInvoiceDownloadUrl = async (paymentId: string) => {
-  const payment = await Payment.findById(useObjectId(paymentId)).select(
+  const payment = await Payment.findById(use_object_id(paymentId)).select(
     "invoiceUrl",
   );
   if (!payment?.invoiceUrl) {

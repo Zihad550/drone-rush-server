@@ -10,23 +10,23 @@ class QueryBuilder<T> {
   }
 
   search(searchableFields: string[]) {
-    const searchTerm = this?.query?.searchTerm;
-    if (searchTerm)
+    const search_term = this?.query?.searchTerm;
+    if (search_term)
       this.modelQuery = this.modelQuery.find({
         $or: searchableFields.map((field) => ({
-          [field]: { $regex: searchTerm, $options: "i" },
+          [field]: { $regex: search_term, $options: "i" },
         })),
       });
     return this;
   }
 
   filter() {
-    const queryObj = { ...this.query };
-    const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
-    excludeFields.forEach((el) => {
-      delete queryObj[el];
+    const query_obj = { ...this.query };
+    const exclude_fields = ["searchTerm", "sort", "limit", "page", "fields"];
+    exclude_fields.forEach((el) => {
+      delete query_obj[el];
     });
-    this.modelQuery = this.modelQuery.find(queryObj);
+    this.modelQuery = this.modelQuery.find(query_obj);
     return this;
   }
 
@@ -61,18 +61,18 @@ class QueryBuilder<T> {
   }
 
   async countTotal() {
-    const totalQueries = this.modelQuery.getFilter();
+    const total_queries = this.modelQuery.getFilter();
 
-    const total = await this.modelQuery.model.countDocuments(totalQueries);
+    const total = await this.modelQuery.model.countDocuments(total_queries);
     const page = Number(this?.query?.page) || 1;
     const limit = Number(this?.query?.limit) || 10;
-    const totalPage = Math.ceil(total / limit);
+    const total_page = Math.ceil(total / limit);
 
     return {
       page,
       limit,
       total,
-      totalPage,
+      total_page,
     };
   }
 }

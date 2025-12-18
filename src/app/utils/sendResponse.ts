@@ -4,7 +4,7 @@ interface IMeta {
   limit: number;
   page: number;
   total: number;
-  totalPage: number;
+  total_page: number;
 }
 
 interface IResponse<T> {
@@ -15,7 +15,7 @@ interface IResponse<T> {
   data: T;
 }
 
-const sendResponse = <T>(res: Response, data: IResponse<T>) => {
+const send_response = <T>(res: Response, data: IResponse<T>) => {
   const { statusCode, success, message, meta } = data;
   res.status(statusCode).json({
     success,
@@ -25,4 +25,4 @@ const sendResponse = <T>(res: Response, data: IResponse<T>) => {
   });
 };
 
-export default sendResponse;
+export default send_response;

@@ -2,7 +2,7 @@ import status from "http-status";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import type { IJwtPayload } from "../../interface";
-import { useObjectId } from "../../utils/useObjectId";
+import { use_object_id } from "../../utils/useObjectId";
 import Order from "../order/order.model";
 import { ReviewSearchableFields } from "./review.constant";
 import Review from "./review.model";
@@ -18,8 +18,8 @@ const createReviewIntoDB = async (
 ) => {
   // Check if order exists and belongs to user and is completed
   const order = await Order.findOne({
-    _id: useObjectId(payload.orderId),
-    user: useObjectId(user.id),
+    _id: use_object_id(payload.orderId),
+    user: use_object_id(user.id),
     status: "COMPLETED",
   });
 
@@ -38,9 +38,9 @@ const createReviewIntoDB = async (
 
   // Check if review already exists
   const existingReview = await Review.findOne({
-    user: useObjectId(user.id),
-    order: useObjectId(payload.orderId),
-    drone: useObjectId(payload.droneId),
+    user: use_object_id(user.id),
+    order: use_object_id(payload.orderId),
+    drone: use_object_id(payload.droneId),
   });
 
   if (existingReview) {
@@ -51,9 +51,9 @@ const createReviewIntoDB = async (
   }
 
   const review = await Review.create({
-    user: useObjectId(user.id),
-    order: useObjectId(payload.orderId),
-    drone: useObjectId(payload.droneId),
+    user: use_object_id(user.id),
+    order: use_object_id(payload.orderId),
+    drone: use_object_id(payload.droneId),
     rating: payload.rating,
     comment: payload.comment,
   });
@@ -61,7 +61,7 @@ const createReviewIntoDB = async (
   // Update order to include the review
   await Order.findByIdAndUpdate(payload.orderId, {
     $push: {
-      reviews: { drone: useObjectId(payload.droneId), review: review._id },
+      reviews: { drone: use_object_id(payload.droneId), review: review._id },
     },
   });
 
@@ -74,7 +74,7 @@ const updateReviewIntoDB = async (
   user: IJwtPayload,
 ) => {
   const review = await Review.findOneAndUpdate(
-    { _id: useObjectId(reviewId), user: useObjectId(user.id) },
+    { _id: use_object_id(reviewId), user: use_object_id(user.id) },
     payload,
     { new: true },
   );
@@ -88,8 +88,8 @@ const updateReviewIntoDB = async (
 
 const deleteReviewIntoDB = async (reviewId: string, user: IJwtPayload) => {
   const review = await Review.findOneAndDelete({
-    _id: useObjectId(reviewId),
-    user: useObjectId(user.id),
+    _id: use_object_id(reviewId),
+    user: use_object_id(user.id),
   });
 
   if (!review) {

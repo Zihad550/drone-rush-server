@@ -3,22 +3,22 @@ import type {
   IGenericErrorResponse,
 } from "../interface/error.interface";
 
-const handleDuplicateError = (err: any): IGenericErrorResponse => {
+const handle_duplicate_error = (err: any): IGenericErrorResponse => {
   const match = err?.message.match(/"([^"]*)"/);
-  const extractedMsg = match?.[1];
-  const errorSources: IErrorSource[] = [
+  const extracted_msg = match?.[1];
+  const error_sources: IErrorSource[] = [
     {
       path: "",
-      message: `${extractedMsg} is already exists`,
+      message: `${extracted_msg} is already exists`,
     },
   ];
-  const statusCode = 400;
+  const status_code = 400;
 
   return {
-    statusCode,
-    errorSources,
+    statusCode: status_code,
+    errorSources: error_sources,
     message: "Duplicate entry found",
   };
 };
 
-export default handleDuplicateError;
+export default handle_duplicate_error;

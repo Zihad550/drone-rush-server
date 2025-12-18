@@ -4,16 +4,16 @@ import type {
   IGenericErrorResponse,
 } from "../interface/error.interface";
 
-const handleZodError = (err: ZodError): IGenericErrorResponse => {
-  const statusCode = 400;
-  const errorSources: IErrorSource[] = err.issues.map((issue: ZodIssue) => ({
+const handle_zod_error = (err: ZodError): IGenericErrorResponse => {
+  const status_code = 400;
+  const error_sources: IErrorSource[] = err.issues.map((issue: ZodIssue) => ({
     path: issue?.path[issue.path.length - 1] as string | number,
     message: issue.message,
   }));
   return {
-    statusCode,
+    statusCode: status_code,
     message: "Zod Validation Error",
-    errorSources,
+    errorSources: error_sources,
   };
 };
-export default handleZodError;
+export default handle_zod_error;

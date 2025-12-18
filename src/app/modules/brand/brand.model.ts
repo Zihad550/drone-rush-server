@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import type IBrand from "./brand.interface";
 
-const brandSchema = new Schema<IBrand>(
+const brand_schema = new Schema<IBrand>(
   {
     name: {
       type: String,
@@ -21,6 +21,6 @@ const brandSchema = new Schema<IBrand>(
   },
 );
 
-const Brand = model<IBrand>("Brand", brandSchema);
+const Brand = model<IBrand>("Brand", brand_schema);
 
 export default Brand;

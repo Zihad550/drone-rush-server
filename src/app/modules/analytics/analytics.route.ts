@@ -5,11 +5,11 @@ import { AnalyticsControllers } from "./analytics.controller";
 
 const router = Router();
 
-router.get("/", auth(USER_ROLE.USER), AnalyticsControllers.getAnalytics);
+router.get("/", auth(USER_ROLE.USER), AnalyticsControllers.get_analytics);
 router.get(
   "/admin",
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  AnalyticsControllers.getAdminAnalytics,
+  AnalyticsControllers.get_admin_analytics,
 );
 
 export const AnalyticsRoutes = router;

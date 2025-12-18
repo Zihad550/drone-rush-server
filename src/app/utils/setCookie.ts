@@ -5,9 +5,9 @@ export interface AuthTokens {
   refreshToken?: string;
 }
 
-export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
-  if (tokenInfo.accessToken) {
-    res.cookie("accessToken", tokenInfo.accessToken, {
+export const set_auth_cookie = (res: Response, token_info: AuthTokens) => {
+  if (token_info.accessToken) {
+    res.cookie("accessToken", token_info.accessToken, {
       secure: true,
       httpOnly: true,
       sameSite: "none",
@@ -15,8 +15,8 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
     });
   }
 
-  if (tokenInfo.refreshToken) {
-    res.cookie("refreshToken", tokenInfo.refreshToken, {
+  if (token_info.refreshToken) {
+    res.cookie("refreshToken", token_info.refreshToken, {
       secure: true,
       httpOnly: true,
       sameSite: "none",

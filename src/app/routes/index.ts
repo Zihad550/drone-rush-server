@@ -13,7 +13,7 @@ import { UserRoutes } from "../modules/user/user.route";
 import { WishListRoutes } from "../modules/wishlist/wishlist.route";
 
 const router = Router();
-const moduleRoutes = [
+const module_routes = [
   {
     path: "/analytics",
     route: AnalyticsRoutes,
@@ -64,7 +64,7 @@ const moduleRoutes = [
   },
 ];
 
-moduleRoutes.forEach((route) => {
+module_routes.forEach((route) => {
   router.use(route.path, route.route);
 });
 

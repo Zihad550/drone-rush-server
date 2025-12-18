@@ -1,7 +1,7 @@
 import type { Server } from "node:http";
 import mongoose from "mongoose";
 import app from "./app";
-import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
+import { seed_super_admin } from "./app/utils/seedSuperAdmin";
 import env from "./env";
 
 let server: Server;
@@ -18,7 +18,7 @@ async function main() {
 
 (async () => {
   await main();
-  await seedSuperAdmin();
+  await seed_super_admin();
 })();
 
 process.on("unhandledRejection", () => {

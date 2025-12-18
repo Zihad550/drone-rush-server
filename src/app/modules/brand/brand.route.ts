@@ -11,8 +11,8 @@ import { BrandControllers } from "./brand.controller";
 
 const router = Router();
 
-router.get("/", BrandControllers.getBrands);
-router.get("/:id", BrandControllers.getBrandById);
+router.get("/", BrandControllers.get_brands);
+router.get("/:id", BrandControllers.get_brand_by_id);
 router.post(
   "/",
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
@@ -21,7 +21,7 @@ router.post(
     req.body = JSON.parse(req.body.data);
     next();
   },
-  BrandControllers.createBrand,
+  BrandControllers.create_brand,
 );
 router.put(
   "/:id",
@@ -31,12 +31,12 @@ router.put(
     req.body = JSON.parse(req.body.data);
     next();
   },
-  BrandControllers.updateBrand,
+  BrandControllers.update_brand,
 );
 router.delete(
   "/:id",
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  BrandControllers.deleteBrand,
+  BrandControllers.delete_brand,
 );
 
 export const BrandRoutes = router;

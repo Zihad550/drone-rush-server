@@ -9,9 +9,9 @@ import type {
   IAnalyticsData,
 } from "./analytics.interface";
 
-const getUserAnalytics = async (userId: string): Promise<IAnalyticsData> => {
+const get_user_analytics = async (userId: string): Promise<IAnalyticsData> => {
   // Orders aggregation
-  const orderStats = await Order.aggregate([
+  const order_stats = await Order.aggregate([
     { $match: { user: new mongoose.Types.ObjectId(userId) } },
     {
       $group: {
@@ -33,7 +33,7 @@ const getUserAnalytics = async (userId: string): Promise<IAnalyticsData> => {
   ]);
 
   // Reviews aggregation
-  const reviewStats = await Review.aggregate([
+  const review_stats = await Review.aggregate([
     { $match: { user: new mongoose.Types.ObjectId(userId) } },
     {
       $group: {
@@ -46,46 +46,46 @@ const getUserAnalytics = async (userId: string): Promise<IAnalyticsData> => {
   ]);
 
   // Wishlist count
-  const wishlistCount = await Wishlist.countDocuments({ user: userId });
+  const wishlist_count = await Wishlist.countDocuments({ user: userId });
 
   // Cart count
-  const cartCount = await Cart.countDocuments({ user: userId });
+  const cart_count = await Cart.countDocuments({ user: userId });
 
   // Process order status counts
-  const orderStatusCounts: { [key: string]: number } = {};
-  if (orderStats.length > 0) {
-    orderStats[0].orderStatusCounts.forEach((status: string) => {
-      orderStatusCounts[status] = (orderStatusCounts[status] || 0) + 1;
+  const order_status_counts: { [key: string]: number } = {};
+  if (order_stats.length > 0) {
+    order_stats[0].orderStatusCounts.forEach((status: string) => {
+      order_status_counts[status] = (order_status_counts[status] || 0) + 1;
     });
   }
 
   // Process rating counts
-  const ratingCounts: { [key: number]: number } = {};
-  if (reviewStats.length > 0) {
-    reviewStats[0].ratingCounts.forEach((rating: number) => {
-      ratingCounts[rating] = (ratingCounts[rating] || 0) + 1;
+  const rating_counts: { [key: number]: number } = {};
+  if (review_stats.length > 0) {
+    review_stats[0].ratingCounts.forEach((rating: number) => {
+      rating_counts[rating] = (rating_counts[rating] || 0) + 1;
     });
   }
 
   return {
-    totalOrders: orderStats[0]?.totalOrders || 0,
-    completedOrders: orderStats[0]?.completedOrders || 0,
-    totalSpent: orderStats[0]?.totalSpent || 0,
-    totalReviews: reviewStats[0]?.totalReviews || 0,
-    averageRating: reviewStats[0]?.averageRating || 0,
-    wishlistCount,
-    cartCount,
-    orderStatusCounts,
-    ratingCounts,
+    totalOrders: order_stats[0]?.totalOrders || 0,
+    completedOrders: order_stats[0]?.completedOrders || 0,
+    totalSpent: order_stats[0]?.totalSpent || 0,
+    totalReviews: review_stats[0]?.totalReviews || 0,
+    averageRating: review_stats[0]?.averageRating || 0,
+    wishlistCount: wishlist_count,
+    cartCount: cart_count,
+    orderStatusCounts: order_status_counts,
+    ratingCounts: rating_counts,
   };
 };
 
-const getAdminAnalytics = async (): Promise<IAdminAnalyticsData> => {
+const get_admin_analytics = async (): Promise<IAdminAnalyticsData> => {
   // Total users
-  const totalUsers = await User.countDocuments();
+  const total_users = await User.countDocuments();
 
   // Total orders and revenue
-  const orderStats = await Order.aggregate([
+  const order_stats = await Order.aggregate([
     {
       $group: {
         _id: null,
@@ -101,16 +101,16 @@ const getAdminAnalytics = async (): Promise<IAdminAnalyticsData> => {
   ]);
 
   // Process order status distribution
-  const orderStatusDistribution: { [key: string]: number } = {};
-  if (orderStats.length > 0) {
-    orderStats[0].orderStatusDistribution.forEach((status: string) => {
-      orderStatusDistribution[status] =
-        (orderStatusDistribution[status] || 0) + 1;
+  const order_status_distribution: { [key: string]: number } = {};
+  if (order_stats.length > 0) {
+    order_stats[0].orderStatusDistribution.forEach((status: string) => {
+      order_status_distribution[status] =
+        (order_status_distribution[status] || 0) + 1;
     });
   }
 
   // Top drones
-  const topDrones = await Order.aggregate([
+  const top_drones = await Order.aggregate([
     { $unwind: "$drones" },
     {
       $group: {
@@ -139,7 +139,7 @@ const getAdminAnalytics = async (): Promise<IAdminAnalyticsData> => {
   ]);
 
   // User growth (by month)
-  const userGrowth = await User.aggregate([
+  const user_growth = await User.aggregate([
     {
       $group: {
         _id: {
@@ -159,7 +159,7 @@ const getAdminAnalytics = async (): Promise<IAdminAnalyticsData> => {
   ]);
 
   // Revenue over time (by month, completed orders)
-  const revenueOverTime = await Order.aggregate([
+  const revenue_over_time = await Order.aggregate([
     { $match: { status: "COMPLETED" } },
     {
       $group: {
@@ -180,17 +180,17 @@ const getAdminAnalytics = async (): Promise<IAdminAnalyticsData> => {
   ]);
 
   return {
-    totalUsers,
-    totalOrders: orderStats[0]?.totalOrders || 0,
-    totalRevenue: orderStats[0]?.totalRevenue || 0,
-    orderStatusDistribution,
-    topDrones,
-    userGrowth,
-    revenueOverTime,
+    totalUsers: total_users,
+    totalOrders: order_stats[0]?.totalOrders || 0,
+    totalRevenue: order_stats[0]?.totalRevenue || 0,
+    orderStatusDistribution: order_status_distribution,
+    topDrones: top_drones,
+    userGrowth: user_growth,
+    revenueOverTime: revenue_over_time,
   };
 };
 
 export const AnalyticsServices = {
-  getUserAnalytics,
-  getAdminAnalytics,
+  get_user_analytics,
+  get_admin_analytics,
 };

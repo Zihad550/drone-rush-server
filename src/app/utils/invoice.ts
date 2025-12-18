@@ -7,8 +7,8 @@ export interface IInvoiceData {
   download_link: string;
 }
 
-export const generatePdf = async (
-  invoiceData: IInvoiceData,
+export const generate_pdf = async (
+  invoice_data: IInvoiceData,
 ): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -21,10 +21,10 @@ export const generatePdf = async (
     // PDF Content
     doc.fontSize(20).text("Invoice", { align: "center" });
     doc.moveDown();
-    doc.fontSize(14).text(`Transaction ID: ${invoiceData.transaction_id}`);
-    doc.text(`Customer: ${invoiceData.user_name}`);
+    doc.fontSize(14).text(`Transaction ID: ${invoice_data.transaction_id}`);
+    doc.text(`Customer: ${invoice_data.user_name}`);
     doc.moveDown();
-    doc.text(`Price: $${invoiceData.price.toFixed(2)}`);
+    doc.text(`Price: $${invoice_data.price.toFixed(2)}`);
     doc.moveDown();
     doc.text("Thank you for using Go Journey!", { align: "center" });
 

@@ -3,9 +3,9 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { AnalyticsServices } from "./analytics.service";
 
-const getAnalytics = catchAsync(async (req, res) => {
+const get_analytics = catchAsync(async (req, res) => {
   const { user } = req;
-  const data = await AnalyticsServices.getUserAnalytics(user.id);
+  const data = await AnalyticsServices.get_user_analytics(user.id);
 
   sendResponse(res, {
     data,
@@ -15,8 +15,8 @@ const getAnalytics = catchAsync(async (req, res) => {
   });
 });
 
-const getAdminAnalytics = catchAsync(async (_req, res) => {
-  const data = await AnalyticsServices.getAdminAnalytics();
+const get_admin_analytics = catchAsync(async (_req, res) => {
+  const data = await AnalyticsServices.get_admin_analytics();
 
   sendResponse(res, {
     data,
@@ -27,6 +27,6 @@ const getAdminAnalytics = catchAsync(async (_req, res) => {
 });
 
 export const AnalyticsControllers = {
-  getAnalytics,
-  getAdminAnalytics,
+  get_analytics,
+  get_admin_analytics,
 };

@@ -4,14 +4,14 @@ import { JsonWebTokenError } from "jsonwebtoken";
 import { ZodError } from "zod";
 import env from "../../env";
 import AppError from "../errors/AppError";
-import handleCastError from "../errors/handleCastError";
-import handleDuplicateError from "../errors/handleDuplicateError";
-import handleValidationError from "../errors/handleValidationError";
-import handleZodError from "../errors/handleZodError";
+import handle_cast_error from "../errors/handleCastError";
+import handle_duplicate_error from "../errors/handleDuplicateError";
+import handle_validation_error from "../errors/handleValidationError";
+import handle_zod_error from "../errors/handleZodError";
 import type { IErrorSource } from "../interface/error.interface";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const globalErrorHandler: ErrorRequestHandler = (err, _, res, __) => {
+const global_error_handler: ErrorRequestHandler = (err, _, res, __) => {
   // setting default values
   let statusCode = 500;
   let message = "Something went wrong!";
@@ -24,27 +24,27 @@ const globalErrorHandler: ErrorRequestHandler = (err, _, res, __) => {
   ];
 
   if (err instanceof ZodError) {
-    const similifiedError = handleZodError(err);
-    statusCode = similifiedError.statusCode;
-    message = similifiedError.message;
-    errorSources = similifiedError.errorSources;
+    const simplified_error = handle_zod_error(err);
+    statusCode = simplified_error.statusCode;
+    message = simplified_error.message;
+    errorSources = simplified_error.errorSources;
   } else if (err?.name === "ValidationError") {
-    const simplifiedError = handleValidationError(err);
-    statusCode = simplifiedError.statusCode;
-    message = simplifiedError.message;
-    errorSources = simplifiedError.errorSources;
+    const simplified_error = handle_validation_error(err);
+    statusCode = simplified_error.statusCode;
+    message = simplified_error.message;
+    errorSources = simplified_error.errorSources;
   } else if (err?.name === "CastError") {
-    const simplifiedError = handleCastError(err);
-    statusCode = simplifiedError.statusCode;
-    message = simplifiedError.message;
-    errorSources = simplifiedError.errorSources;
+    const simplified_error = handle_cast_error(err);
+    statusCode = simplified_error.statusCode;
+    message = simplified_error.message;
+    errorSources = simplified_error.errorSources;
   } else if (err?.code === 11000) {
-    const simplifiedError = handleDuplicateError(err);
-    statusCode = simplifiedError.statusCode;
-    message = simplifiedError.message;
-    errorSources = simplifiedError.errorSources;
+    const simplified_error = handle_duplicate_error(err);
+    statusCode = simplified_error.statusCode;
+    message = simplified_error.message;
+    errorSources = simplified_error.errorSources;
   } else if (err instanceof AppError) {
-    statusCode = err.statusCode;
+    statusCode = err.status_code;
     message = err.message;
     errorSources = [
       {
@@ -79,4 +79,4 @@ const globalErrorHandler: ErrorRequestHandler = (err, _, res, __) => {
   });
 };
 
-export default globalErrorHandler;
+export default global_error_handler;

@@ -1,8 +1,8 @@
 import status from "http-status";
 import env from "../../../env";
 import AppError from "../../errors/AppError";
-import { sendEmail } from "../../utils/sendEmail";
-import { createToken } from "../auth/auth.utils";
+import { send_email } from "../../utils/sendEmail";
+import { create_token } from "../auth/auth.utils";
 import Invite from "./invite.model";
 import { USER_ROLE } from "./user.constant";
 import User from "./user.model";
@@ -23,7 +23,7 @@ const createInvite = async (email: string, invitedBy: string) => {
   }
 
   // Generate token
-  const token = createToken(
+  const token = create_token(
     { email, invitedBy },
     env.JWT_ACCESS_CONTROL,
     "7d", // 7 days
@@ -39,11 +39,11 @@ const createInvite = async (email: string, invitedBy: string) => {
 
   // Send email
   const inviteUrl = `${env.FRONTEND_URL}/register?token=${token}`;
-  await sendEmail({
+  await send_email({
     to: email,
     subject: "Admin Invitation - Drone Rush",
-    templateName: "adminInvite",
-    templateData: {
+    template_name: "adminInvite",
+    template_data: {
       inviteUrl,
       email,
     },
@@ -66,9 +66,9 @@ const deleteInvite = async (inviteId: string, superAdminId: string) => {
 };
 
 const verifyInviteToken = async (token: string) => {
-  const { verifyToken } = await import("../auth/auth.utils");
+  const { verify_token } = await import("../auth/auth.utils");
   try {
-    const decoded = verifyToken(token, env.JWT_ACCESS_CONTROL);
+    const decoded = verify_token(token, env.JWT_ACCESS_CONTROL);
     const invite = await Invite.findOne({
       email: decoded.email,
       token,

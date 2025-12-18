@@ -1,13 +1,13 @@
 import status from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-import { setAuthCookie } from "../../utils/setCookie";
+import { set_auth_cookie } from "../../utils/setCookie";
 import { AuthServices } from "./auth.service";
 
 const register = catchAsync(async (req, res) => {
   const { accessToken, refreshToken } = await AuthServices.register(req.body);
 
-  setAuthCookie(res, { accessToken, refreshToken });
+  set_auth_cookie(res, { accessToken, refreshToken });
   sendResponse(res, {
     data: {
       accessToken,
@@ -20,7 +20,7 @@ const register = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { accessToken, refreshToken } = await AuthServices.login(req.body);
 
-  setAuthCookie(res, { accessToken, refreshToken });
+  set_auth_cookie(res, { accessToken, refreshToken });
 
   sendResponse(res, {
     data: {
@@ -31,10 +31,10 @@ const login = catchAsync(async (req, res) => {
   });
 });
 
-const refreshToken = catchAsync(async (req, res) => {
+const refresh_token = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
-  const data = await AuthServices.refreshToken(refreshToken);
-  setAuthCookie(res, { accessToken: data.accessToken });
+  const data = await AuthServices.refresh_token(refreshToken);
+  set_auth_cookie(res, { accessToken: data.accessToken });
 
   sendResponse(res, {
     data,
@@ -65,6 +65,6 @@ const logout = catchAsync(async (_req, res) => {
 export const AuthControllers = {
   register,
   login,
-  refreshToken,
+  refresh_token,
   logout,
 };

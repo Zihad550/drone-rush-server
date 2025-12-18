@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
 import type { IJwtPayload } from "../../interface";
-import { useObjectId } from "../../utils/useObjectId";
+import { use_object_id } from "../../utils/useObjectId";
 import type IDrone from "../drone/drone.interface";
 import Drone from "../drone/drone.model";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
@@ -50,7 +50,7 @@ const getUserOrdersFromDB = async ({
 }) => {
   const ordersQuery = new QueryBuilder(
     Order.find({
-      user: useObjectId(userId),
+      user: use_object_id(userId),
       // status: {
       //   $nin: [ORDER_STATUS.ADMIN_CANCELLED, ORDER_STATUS.USER_CANCELLED],
       // },
@@ -98,7 +98,7 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
   const user_data = await User.findById(user.id);
   if (!user_data) throw new AppError(status.NOT_FOUND, "User not found!");
 
-  const droneIds = payload.drones.map((item) => useObjectId(item._id));
+  const droneIds = payload.drones.map((item) => use_object_id(item._id));
   let foundDrones = await Drone.find(
     { _id: { $in: droneIds }, quantity: { $gte: 1 } },
     { price: 1, quantity: 1 },
@@ -143,7 +143,7 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     const payment = await Payment.create(
       [
         {
-          order: useObjectId(order_data[0]._id),
+          order: use_object_id(order_data[0]._id),
           user: user_data._id,
           transactionId: transaction_id,
           status: PAYMENT_STATUS.PENDING,
@@ -199,7 +199,7 @@ const updateOrderStatusIntoDB = async ({
   if (user.role === "user")
     orderExists = await Order.findOne({
       _id: id,
-      user: useObjectId(user.id),
+      user: use_object_id(user.id),
     });
   else orderExists = await Order.findOne({ _id: id });
 

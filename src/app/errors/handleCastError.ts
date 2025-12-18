@@ -4,21 +4,21 @@ import type {
   IGenericErrorResponse,
 } from "../interface/error.interface";
 
-const handleCastError = (
+const handle_cast_error = (
   err: mongoose.Error.CastError,
 ): IGenericErrorResponse => {
-  const errorSources: IErrorSource[] = [
+  const error_sources: IErrorSource[] = [
     {
       path: err.path,
       message: err.message,
     },
   ];
-  const statusCode = 400;
+  const status_code = 400;
   return {
-    statusCode,
+    statusCode: status_code,
     message: "Invalid ID",
-    errorSources,
+    errorSources: error_sources,
   };
 };
 
-export default handleCastError;
+export default handle_cast_error;
