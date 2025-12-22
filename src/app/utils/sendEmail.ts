@@ -1,5 +1,5 @@
 import path from "node:path";
-import ejs from "ejs";
+import ejs, { type Data } from "ejs";
 import nodemailer from "nodemailer";
 import env from "../../env";
 
@@ -17,7 +17,7 @@ interface SendEmailOptions {
   to: string;
   subject: string;
   template_name: string;
-  template_data?: Record<string, any>;
+  template_data?: Data;
   attachments?: {
     filename: string;
     content: Buffer | string;

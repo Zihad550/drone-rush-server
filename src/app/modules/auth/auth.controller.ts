@@ -18,6 +18,7 @@ const register = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
+  console.log("req boy -", req.body);
   const { accessToken, refreshToken } = await AuthServices.login(req.body);
 
   set_auth_cookie(res, { accessToken, refreshToken });
@@ -62,9 +63,37 @@ const logout = catchAsync(async (_req, res) => {
   });
 });
 
+const forgot_password = catchAsync(async (req, res) => {
+  const { email } = req.body;
+
+  await AuthServices.forgot_password(email);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Email Sent Successfully",
+    data: null,
+  });
+});
+
+const reset_password = catchAsync(async (req, res) => {
+  const decodedToken = req.user;
+
+  await AuthServices.reset_password(decodedToken, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Password Changed Successfully",
+    data: null,
+  });
+});
+
 export const AuthControllers = {
   register,
   login,
   refresh_token,
   logout,
+  forgot_password,
+  reset_password,
 };

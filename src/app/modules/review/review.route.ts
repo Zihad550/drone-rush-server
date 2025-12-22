@@ -7,22 +7,10 @@ const router = Router();
 
 router.get("/", ReviewControllers.getReviews);
 
-router.post(
-  "/",
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  ReviewControllers.createReview,
-);
+router.post("/", auth(USER_ROLE.USER), ReviewControllers.createReview);
 
-router.patch(
-  "/:id",
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  ReviewControllers.updateReview,
-);
+router.patch("/:id", auth(USER_ROLE.USER), ReviewControllers.updateReview);
 
-router.delete(
-  "/:id",
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  ReviewControllers.deleteReview,
-);
+router.delete("/:id", auth(USER_ROLE.USER), ReviewControllers.deleteReview);
 
 export const ReviewRoutes = router;

@@ -3,7 +3,7 @@ import { USER_ROLE } from "../modules/user/user.constant";
 import type IUser from "../modules/user/user.interface";
 import User from "../modules/user/user.model";
 
-export const seed_super_admin = async () => {
+export async function seed_super_admin() {
   const is_super_admin_exist = await User.findOne({
     email: env.SUPER_ADMIN_EMAIL,
   });
@@ -19,4 +19,4 @@ export const seed_super_admin = async () => {
   };
 
   await User.create(payload);
-};
+}

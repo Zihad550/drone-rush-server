@@ -1,6 +1,9 @@
 import status from "http-status";
+import jwt from "jsonwebtoken";
 import env from "../../../env";
 import AppError from "../../errors/AppError";
+import type { IJwtPayload } from "../../interface";
+import { send_email } from "../../utils/sendEmail";
 import type IUser from "../user/user.interface";
 import User from "../user/user.model";
 import { UserServices } from "../user/user.service";
@@ -118,8 +121,53 @@ const refresh_token = async (token: string) => {
   };
 };
 
+const reset_password = async (
+  decodedToken: IJwtPayload,
+  payload: { newPassword: string },
+) => {
+  const isUserExist = await User.findById(decodedToken.id);
+  if (!isUserExist) throw new AppError(401, "User does not exist");
+
+  isUserExist.password = payload.newPassword;
+
+  await isUserExist.save();
+};
+
+const forgot_password = async (email: string) => {
+  const isUserExist = await User.findOne({ email });
+
+  if (!isUserExist)
+    throw new AppError(status.BAD_REQUEST, "User does not exist");
+
+  if (isUserExist.status === "blocked")
+    throw new AppError(status.BAD_REQUEST, "User is blocked");
+
+  const jwtPayload = {
+    id: isUserExist._id,
+    role: isUserExist.role,
+  };
+
+  const resetToken = jwt.sign(jwtPayload, env.JWT_ACCESS_SECRET, {
+    expiresIn: "10m",
+  });
+
+  const resetUILink = `${env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+  send_email({
+    to: isUserExist.email,
+    subject: "Password Reset",
+    template_name: "forgetPassword",
+    template_data: {
+      name: isUserExist.name,
+      resetUILink,
+    },
+  });
+};
+
 export const AuthServices = {
   register,
   login,
   refresh_token,
+  reset_password,
+  forgot_password,
 };

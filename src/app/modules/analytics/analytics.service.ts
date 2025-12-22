@@ -9,7 +9,7 @@ import type {
   IAnalyticsData,
 } from "./analytics.interface";
 
-const get_user_analytics = async (userId: string): Promise<IAnalyticsData> => {
+async function get_user_analytics(userId: string): Promise<IAnalyticsData> {
   // Orders aggregation
   const order_stats = await Order.aggregate([
     { $match: { user: new mongoose.Types.ObjectId(userId) } },
@@ -78,9 +78,9 @@ const get_user_analytics = async (userId: string): Promise<IAnalyticsData> => {
     orderStatusCounts: order_status_counts,
     ratingCounts: rating_counts,
   };
-};
+}
 
-const get_admin_analytics = async (): Promise<IAdminAnalyticsData> => {
+async function get_admin_analytics(): Promise<IAdminAnalyticsData> {
   // Total users
   const total_users = await User.countDocuments();
 
@@ -188,7 +188,7 @@ const get_admin_analytics = async (): Promise<IAdminAnalyticsData> => {
     userGrowth: user_growth,
     revenueOverTime: revenue_over_time,
   };
-};
+}
 
 export const AnalyticsServices = {
   get_user_analytics,

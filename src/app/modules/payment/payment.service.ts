@@ -11,7 +11,7 @@ import type IUser from "../user/user.interface";
 import { PAYMENT_STATUS } from "./payment.interface";
 import Payment from "./payment.model";
 
-const successPayment = async (query: Record<string, string>) => {
+async function successPayment(query: Record<string, string>) {
   const session = await Drone.startSession();
   session.startTransaction();
 
@@ -91,9 +91,9 @@ const successPayment = async (query: Record<string, string>) => {
     await session.abortTransaction();
     throw error;
   }
-};
+}
 
-const failPayment = async (query: Record<string, string>) => {
+async function failPayment(query: Record<string, string>) {
   const session = await Drone.startSession();
   session.startTransaction();
 
@@ -119,9 +119,9 @@ const failPayment = async (query: Record<string, string>) => {
     await session.abortTransaction();
     throw error;
   }
-};
+}
 
-const cancelPayment = async (query: Record<string, string>) => {
+async function cancelPayment(query: Record<string, string>) {
   const session = await Drone.startSession();
   session.startTransaction();
 
@@ -146,9 +146,9 @@ const cancelPayment = async (query: Record<string, string>) => {
     await session.abortTransaction();
     throw error;
   }
-};
+}
 
-const getInvoiceDownloadUrl = async (paymentId: string) => {
+async function getInvoiceDownloadUrl(paymentId: string) {
   const payment = await Payment.findById(use_object_id(paymentId)).select(
     "invoiceUrl",
   );
@@ -156,7 +156,7 @@ const getInvoiceDownloadUrl = async (paymentId: string) => {
     throw new AppError(404, "Invoice not found");
   }
   return payment.invoiceUrl;
-};
+}
 
 export const PaymentServices = {
   successPayment,

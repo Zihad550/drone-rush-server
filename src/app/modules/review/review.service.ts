@@ -7,7 +7,7 @@ import Order from "../order/order.model";
 import { ReviewSearchableFields } from "./review.constant";
 import Review from "./review.model";
 
-const createReviewIntoDB = async (
+async function createReviewIntoDB(
   payload: {
     orderId: string;
     droneId: string;
@@ -15,7 +15,7 @@ const createReviewIntoDB = async (
     comment: string;
   },
   user: IJwtPayload,
-) => {
+) {
   // Check if order exists and belongs to user and is completed
   const order = await Order.findOne({
     _id: use_object_id(payload.orderId),
@@ -66,13 +66,13 @@ const createReviewIntoDB = async (
   });
 
   return review;
-};
+}
 
-const updateReviewIntoDB = async (
+async function updateReviewIntoDB(
   reviewId: string,
   payload: { rating: number; comment: string },
   user: IJwtPayload,
-) => {
+) {
   const review = await Review.findOneAndUpdate(
     { _id: use_object_id(reviewId), user: use_object_id(user.id) },
     payload,
@@ -84,9 +84,9 @@ const updateReviewIntoDB = async (
   }
 
   return review;
-};
+}
 
-const deleteReviewIntoDB = async (reviewId: string, user: IJwtPayload) => {
+async function deleteReviewIntoDB(reviewId: string, user: IJwtPayload) {
   const review = await Review.findOneAndDelete({
     _id: use_object_id(reviewId),
     user: use_object_id(user.id),
@@ -102,9 +102,9 @@ const deleteReviewIntoDB = async (reviewId: string, user: IJwtPayload) => {
   });
 
   return review;
-};
+}
 
-const getReviewsFromDB = async (query: Record<string, unknown>) => {
+async function getReviewsFromDB(query: Record<string, unknown>) {
   const reviewsQuery = new QueryBuilder(
     Review.find().populate("user", "name").populate("drone", "name img"),
     query,
@@ -118,7 +118,7 @@ const getReviewsFromDB = async (query: Record<string, unknown>) => {
   const data = await reviewsQuery.modelQuery;
   const meta = await reviewsQuery.countTotal();
   return { data, meta };
-};
+}
 
 export const ReviewServices = {
   createReviewIntoDB,

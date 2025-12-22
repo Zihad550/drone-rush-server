@@ -7,15 +7,15 @@ import Invite from "./invite.model";
 import { USER_ROLE } from "./user.constant";
 import User from "./user.model";
 
-const updateUserToAdmin = async (email: string) => {
+async function updateUserToAdmin(email: string) {
   const user = await User.findOneAndUpdate(
     { email },
     { role: USER_ROLE.ADMIN },
   );
   if (!user) throw new AppError(status.NOT_FOUND, "User not found!");
-};
+}
 
-const createInvite = async (email: string, invitedBy: string) => {
+async function createInvite(email: string, invitedBy: string) {
   // Check if invite already exists and is pending
   const existingInvite = await Invite.findOne({ email, status: "pending" });
   if (existingInvite) {
@@ -50,22 +50,22 @@ const createInvite = async (email: string, invitedBy: string) => {
   });
 
   return invite;
-};
+}
 
-const getInvitesBySuperAdmin = async (superAdminId: string) => {
+async function getInvitesBySuperAdmin(superAdminId: string) {
   return Invite.find({ invitedBy: superAdminId }).sort({ createdAt: -1 });
-};
+}
 
-const deleteInvite = async (inviteId: string, superAdminId: string) => {
+async function deleteInvite(inviteId: string, superAdminId: string) {
   const invite = await Invite.findOneAndDelete({
     _id: inviteId,
     invitedBy: superAdminId,
   });
   if (!invite) throw new AppError(status.NOT_FOUND, "Invite not found");
   return invite;
-};
+}
 
-const verifyInviteToken = async (token: string) => {
+async function verifyInviteToken(token: string) {
   const { verify_token } = await import("../auth/auth.utils");
   try {
     const decoded = verify_token(token, env.JWT_ACCESS_CONTROL);
@@ -81,11 +81,11 @@ const verifyInviteToken = async (token: string) => {
   } catch (_error) {
     throw new AppError(status.BAD_REQUEST, "Invalid token");
   }
-};
+}
 
-const acceptInvite = async (inviteId: string) => {
+async function acceptInvite(inviteId: string) {
   await Invite.findByIdAndUpdate(inviteId, { status: "accepted" });
-};
+}
 
 export const UserServices = {
   updateUserToAdmin,

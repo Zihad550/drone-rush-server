@@ -5,7 +5,7 @@ export interface AuthTokens {
   refreshToken?: string;
 }
 
-export const set_auth_cookie = (res: Response, token_info: AuthTokens) => {
+export function set_auth_cookie(res: Response, token_info: AuthTokens) {
   if (token_info.accessToken) {
     res.cookie("accessToken", token_info.accessToken, {
       secure: true,
@@ -23,4 +23,4 @@ export const set_auth_cookie = (res: Response, token_info: AuthTokens) => {
       // domain: env.FRONTEND_DOMAIN,
     });
   }
-};
+}

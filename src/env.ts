@@ -23,6 +23,7 @@ const EnvSchema = z
     JWT_ACCESS_EXPIRES_IN: z.string(),
     JWT_REFRESH_EXPIRES_IN: z.string(),
     JWT_ACCESS_CONTROL: z.string(),
+    JWT_PASSWORD_RESET: z.string(),
 
     // frontend
     PRODUCTION_FRONTEND_URL: z.string(),
@@ -44,6 +45,14 @@ const EnvSchema = z
     // super admin
     SUPER_ADMIN_PASSWORD: z.string(),
     SUPER_ADMIN_EMAIL: z.string(),
+
+    // admin
+    ADMIN_PASSWORD: z.string(),
+    ADMIN_EMAIL: z.string(),
+
+    // user
+    USER_PASSWORD: z.string(),
+    USER_EMAIL: z.string(),
 
     // ssl commerz
     SSL_STORE_ID: z.string(),

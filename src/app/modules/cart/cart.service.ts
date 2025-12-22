@@ -6,11 +6,11 @@ import Drone from "../drone/drone.model";
 import Wishlist from "../wishlist/wishlist.model";
 import Cart from "./cart.model";
 
-const addToCart = async (
+async function addToCart(
   userId: string,
   droneId: string,
   quantity: number = 1,
-) => {
+) {
   // Check if drone exists
   const drone = await Drone.findById(droneId);
   if (!drone) {
@@ -37,13 +37,13 @@ const addToCart = async (
       quantity,
     });
   }
-};
+}
 
-const updateCartQuantity = async (
+async function updateCartQuantity(
   userId: string,
   droneId: string,
   newQuantity: number,
-) => {
+) {
   if (newQuantity < 1) {
     throw new AppError(httpStatus.BAD_REQUEST, "Quantity must be at least 1");
   }
@@ -61,9 +61,9 @@ const updateCartQuantity = async (
     throw new AppError(httpStatus.NOT_FOUND, "Cart item not found");
   }
   return result;
-};
+}
 
-const removeFromCart = async (userId: string, droneId: string) => {
+async function removeFromCart(userId: string, droneId: string) {
   const result = await Cart.findOneAndDelete({
     user: use_object_id(userId),
     drone: use_object_id(droneId),
@@ -72,7 +72,7 @@ const removeFromCart = async (userId: string, droneId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Cart item not found");
   }
   return result;
-};
+}
 
 const getUserCart = async (userId: string) => {
   const cart = await Cart.find({ user: use_object_id(userId) })
@@ -81,11 +81,11 @@ const getUserCart = async (userId: string) => {
   return cart;
 };
 
-const addToCartAndRemoveFromWishlist = async (
+async function addToCartAndRemoveFromWishlist(
   userId: string,
   droneId: string,
   quantity: number = 1,
-) => {
+) {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -134,12 +134,9 @@ const addToCartAndRemoveFromWishlist = async (
   } finally {
     session.endSession();
   }
-};
+}
 
-const addToWishlistAndRemoveFromCart = async (
-  userId: string,
-  droneId: string,
-) => {
+async function addToWishlistAndRemoveFromCart(userId: string, droneId: string) {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -187,7 +184,7 @@ const addToWishlistAndRemoveFromCart = async (
   } finally {
     session.endSession();
   }
-};
+}
 
 export const CartService = {
   addToCart,

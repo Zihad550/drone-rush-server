@@ -1,7 +1,9 @@
 import type { Server } from "node:http";
 import mongoose from "mongoose";
 import app from "./app";
-import { seed_super_admin } from "./app/utils/seedSuperAdmin";
+import { seed_admin } from "./app/seed/seed-admin";
+import { seed_super_admin } from "./app/seed/seed-super-admin";
+import { seed_user } from "./app/seed/seed-user";
 import env from "./env";
 
 let server: Server;
@@ -18,7 +20,7 @@ async function main() {
 
 (async () => {
   await main();
-  await seed_super_admin();
+  await Promise.all([seed_super_admin(), seed_admin(), seed_user()]);
 })();
 
 process.on("unhandledRejection", () => {

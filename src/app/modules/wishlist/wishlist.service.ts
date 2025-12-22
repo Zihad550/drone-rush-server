@@ -4,7 +4,7 @@ import { use_object_id } from "../../utils/useObjectId";
 import Drone from "../drone/drone.model";
 import Wishlist from "./wishlist.model";
 
-const addToWishlist = async (userId: string, droneId: string) => {
+async function addToWishlist(userId: string, droneId: string) {
   // Check if drone exists
   const drone = await Drone.findById(droneId);
   if (!drone) {
@@ -25,9 +25,9 @@ const addToWishlist = async (userId: string, droneId: string) => {
     drone: droneId,
   });
   return wishlistItem;
-};
+}
 
-const removeFromWishlist = async (userId: string, droneId: string) => {
+async function removeFromWishlist(userId: string, droneId: string) {
   const result = await Wishlist.findOneAndDelete({
     user: use_object_id(userId),
     drone: use_object_id(droneId),
@@ -36,14 +36,14 @@ const removeFromWishlist = async (userId: string, droneId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Wishlist item not found");
   }
   return result;
-};
+}
 
-const getUserWishlist = async (userId: string) => {
+async function getUserWishlist(userId: string) {
   const wishlist = await Wishlist.find({ user: use_object_id(userId) })
     .populate("drone")
     .sort({ createdAt: -1 });
   return wishlist;
-};
+}
 
 export const WishlistService = {
   addToWishlist,

@@ -4,7 +4,7 @@ import { BrandSearchableFields } from "./brand.constant";
 import type IBrand from "./brand.interface";
 import Brand from "./brand.model";
 
-const get_brands_from_db = async (query: Record<string, unknown>) => {
+async function get_brands_from_db(query: Record<string, unknown>) {
   const categories_query = new QueryBuilder(Brand.find(), query)
     .search(BrandSearchableFields)
     .filter()
@@ -17,9 +17,9 @@ const get_brands_from_db = async (query: Record<string, unknown>) => {
     data,
     meta,
   };
-};
+}
 
-const create_brand_into_db = async (payload: IBrand, file: any) => {
+async function create_brand_into_db(payload: IBrand, file: any) {
   if (file) {
     const image_name = `${payload.name}-${crypto.randomUUID()}`;
     const path = file?.path;
@@ -28,21 +28,21 @@ const create_brand_into_db = async (payload: IBrand, file: any) => {
     if (typeof secure_url === "string") payload.logo = secure_url;
   }
   return await Brand.create(payload);
-};
+}
 
-const get_brand_by_id_from_db = async (id: string) => {
+async function get_brand_by_id_from_db(id: string) {
   const brand = await Brand.findById(id);
   if (!brand) {
     throw new Error("Brand not found");
   }
   return brand;
-};
+}
 
-const update_brand_into_db = async (
+async function update_brand_into_db(
   id: string,
   payload: Partial<IBrand>,
   file: any,
-) => {
+) {
   if (file) {
     const image_name = `${id}-${crypto.randomUUID()}`;
     const path = file?.path;
@@ -55,15 +55,15 @@ const update_brand_into_db = async (
     throw new Error("Brand not found");
   }
   return brand;
-};
+}
 
-const delete_brand_from_db = async (id: string) => {
+async function delete_brand_from_db(id: string) {
   const brand = await Brand.findByIdAndDelete(id);
   if (!brand) {
     throw new Error("Brand not found");
   }
   return brand;
-};
+}
 
 export const BrandServices = {
   get_brands_from_db,

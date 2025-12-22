@@ -20,7 +20,7 @@ import type IOrder from "./order.interface";
 import type { ICreateOrder, TOrderStatus } from "./order.interface";
 import Order from "./order.model";
 
-const getOrdersFromDB = async (query: Record<string, unknown>) => {
+async function getOrdersFromDB(query: Record<string, unknown>) {
   const ordersQuery = new QueryBuilder(
     Order.find()
       .populate("user", "name")
@@ -39,15 +39,15 @@ const getOrdersFromDB = async (query: Record<string, unknown>) => {
     data,
     meta,
   };
-};
+}
 
-const getUserOrdersFromDB = async ({
+async function getUserOrdersFromDB({
   userId,
   query,
 }: {
   userId: string;
   query: Record<string, unknown>;
-}) => {
+}) {
   const ordersQuery = new QueryBuilder(
     Order.find({
       user: use_object_id(userId),
@@ -72,16 +72,16 @@ const getUserOrdersFromDB = async ({
     data,
     meta,
   };
-};
+}
 
-const getOrderByIdFromDB = async (id: string) => {
+async function getOrderByIdFromDB(id: string) {
   return await Order.findById(id).populate("drones.id");
-};
+}
 
-const totalDronePrice = (
+function totalDronePrice(
   drones: IDrone[],
   cart_drones: { _id: string; quantity: number }[],
-) => {
+) {
   let total_price = 0;
 
   drones.forEach((drone) => {
@@ -92,9 +92,9 @@ const totalDronePrice = (
   });
 
   return total_price;
-};
+}
 
-const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
+async function createOrderIntoDB(payload: ICreateOrder, user: IJwtPayload) {
   const user_data = await User.findById(user.id);
   if (!user_data) throw new AppError(status.NOT_FOUND, "User not found!");
 
@@ -184,9 +184,9 @@ const createOrderIntoDB = async (payload: ICreateOrder, user: IJwtPayload) => {
     await session.endSession();
     throw new AppError(status.BAD_REQUEST, "Failed to create order!");
   }
-};
+}
 
-const updateOrderStatusIntoDB = async ({
+async function updateOrderStatusIntoDB({
   payload: { status: orderStatus, cancelReason },
   id,
   user,
@@ -194,7 +194,7 @@ const updateOrderStatusIntoDB = async ({
   payload: { status: TOrderStatus; cancelReason?: string };
   id: string;
   user: IJwtPayload;
-}) => {
+}) {
   let orderExists: IOrder | null = null;
   if (user.role === "user")
     orderExists = await Order.findOne({
@@ -256,7 +256,7 @@ const updateOrderStatusIntoDB = async ({
     await session.endSession();
     throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to update order!");
   }
-};
+}
 
 export const OrderServices = {
   getOrdersFromDB,

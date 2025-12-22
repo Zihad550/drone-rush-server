@@ -7,15 +7,14 @@ export interface IInvoiceData {
   download_link: string;
 }
 
-export const generate_pdf = async (
-  invoice_data: IInvoiceData,
-): Promise<Buffer> => {
+export function generate_pdf(invoice_data: IInvoiceData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const buffer: Uint8Array[] = [];
 
-    doc.on("data", (chunk: any) => buffer.push(chunk));
+    doc.on("data", (chunk: Buffer) => buffer.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(buffer)));
+    // biome-ignore lint/suspicious/noExplicitAny: doesn't has a proper type
     doc.on("error", (err: any) => reject(err));
 
     // PDF Content
@@ -30,4 +29,4 @@ export const generate_pdf = async (
 
     doc.end();
   });
-};
+}

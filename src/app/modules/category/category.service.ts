@@ -4,7 +4,7 @@ import { CategorySearchableFields } from "./category.constant";
 import type ICategory from "./category.interface";
 import Category from "./category.model";
 
-const getCategoriesFromDB = async (query: Record<string, unknown>) => {
+async function getCategoriesFromDB(query: Record<string, unknown>) {
   const categoriesQuery = new QueryBuilder(Category.find(), query)
     .search(CategorySearchableFields)
     .filter()
@@ -18,31 +18,28 @@ const getCategoriesFromDB = async (query: Record<string, unknown>) => {
     data,
     meta,
   };
-};
+}
 
-const createCategoryIntoDB = async (payload: ICategory) => {
+async function createCategoryIntoDB(payload: ICategory) {
   return await Category.create(payload);
-};
+}
 
-const updateCategoryIntoDB = async (
-  id: string,
-  payload: Partial<ICategory>,
-) => {
+async function updateCategoryIntoDB(id: string, payload: Partial<ICategory>) {
   return await Category.findByIdAndUpdate(id, payload, { new: true });
-};
+}
 
-const deleteCategoryFromDB = async (id: string) => {
+async function deleteCategoryFromDB(id: string) {
   return await Category.findByIdAndDelete(id);
-};
+}
 
-const getDronesByCategoryFromDB = async (
+async function getDronesByCategoryFromDB(
   id: string,
   query: Record<string, unknown>,
-) => {
+) {
   // Force category filter
   query.category = [id];
   return DroneServices.getDronesFromDB(query);
-};
+}
 
 export const CategoryServices = {
   getCategoriesFromDB,

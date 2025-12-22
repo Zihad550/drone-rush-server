@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import status from "http-status";
+import type { FilterQuery, PipelineStage } from "mongoose";
 import AppError from "../../errors/AppError";
 import { send_image_to_cloudinary } from "../../utils/sendImageToCloudinary";
 import { use_object_id } from "../../utils/useObjectId";
@@ -8,10 +9,10 @@ import Wishlist from "../wishlist/wishlist.model";
 import type IDrone from "./drone.interface";
 import Drone from "./drone.model";
 
-const getDronesFromDB = async (
+async function getDronesFromDB(
   query: Record<string, unknown>,
   userId?: string,
-) => {
+) {
   // Parse comma-separated strings into arrays
   if (typeof query.category === "string") {
     query.category = query.category.split(",");
@@ -42,7 +43,7 @@ const getDronesFromDB = async (
 
   const skip = (Number(page) - 1) * Number(limit);
 
-  let pipeline: any[] = [];
+  let pipeline: PipelineStage[] = [];
   let isAggregate = false;
 
   if (searchTerm) {
@@ -91,7 +92,8 @@ const getDronesFromDB = async (
   }
 
   // Apply filters
-  const matchFilter: any = {};
+  // biome-ignore lint/suspicious/noExplicitAny: can filte on any field
+  const matchFilter: Record<string, FilterQuery<any>> = {};
   if (category && Array.isArray(category)) {
     matchFilter.category = { $in: category };
   }
@@ -107,7 +109,7 @@ const getDronesFromDB = async (
   }
 
   // Sorting
-  const sortObj: any = {};
+  const sortObj: Record<string, 1 | -1> = {};
   const sortFields = (sort as string).split(",");
   sortFields.forEach((field) => {
     if (field.startsWith("-")) {
@@ -128,7 +130,7 @@ const getDronesFromDB = async (
 
   // Fields
   if (fields) {
-    const fieldObj: any = { __v: 0 };
+    const fieldObj: Record<string, number> = { __v: 0 };
     const fieldList = (fields as string).split(",");
     fieldList.forEach((field) => {
       if (field.startsWith("-")) {
@@ -140,7 +142,7 @@ const getDronesFromDB = async (
     pipeline.push({ $project: fieldObj });
   }
 
-  let data: any[];
+  let data: IDrone[];
   let total: number;
 
   if (isAggregate) {
@@ -190,7 +192,7 @@ const getDronesFromDB = async (
         item.drone.toString(),
       );
 
-      data.forEach((drone: any) => {
+      data.forEach((drone) => {
         drone.isInWishlist = wishlistDroneIds.includes(drone._id.toString());
       });
     } catch (_error) {
@@ -203,9 +205,9 @@ const getDronesFromDB = async (
     data,
     meta,
   };
-};
+}
 
-const getDroneByIdFromDB = async (id: string, userId?: string) => {
+async function getDroneByIdFromDB(id: string, userId?: string) {
   const drone = await Drone.findOne({ _id: id })
     .populate("brand")
     .populate("category")
@@ -239,9 +241,10 @@ const getDroneByIdFromDB = async (id: string, userId?: string) => {
   }
 
   return drone;
-};
+}
 
-const createDroneIntoDB = async (payload: IDrone, file: any) => {
+// biome-ignore lint/suspicious/noExplicitAny: file type from frontend
+async function createDroneIntoDB(payload: IDrone, file: any) {
   if (file) {
     const imageName = `${payload.name}-${crypto.randomUUID()}`;
     const path = file?.path;
@@ -250,13 +253,14 @@ const createDroneIntoDB = async (payload: IDrone, file: any) => {
     if (typeof secure_url === "string") payload.img = secure_url;
   }
   return await Drone.create(payload);
-};
+}
 
-const updateDroneByIdFromDB = async (
+async function updateDroneByIdFromDB(
   id: string,
   payload: Partial<IDrone>,
+  // biome-ignore lint/suspicious/noExplicitAny: file type from frontend
   file: any,
-) => {
+) {
   if (file) {
     const imageName = `${id}-${crypto.randomUUID()}`;
     const path = file?.path;
@@ -273,13 +277,13 @@ const updateDroneByIdFromDB = async (
   });
   if (!data) throw new AppError(status.NOT_FOUND, "Drone not found!");
   return data;
-};
+}
 
-const deleteDroneByIdFromDB = async (id: string) => {
+async function deleteDroneByIdFromDB(id: string) {
   const data = await Drone.findOneAndDelete({ _id: id });
   if (!data) throw new AppError(status.NOT_FOUND, "Drone not found!");
   return data;
-};
+}
 
 export const DroneServices = {
   getDronesFromDB,
